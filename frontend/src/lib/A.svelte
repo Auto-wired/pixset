@@ -4,15 +4,16 @@
         y: number;
     };
 
+    const dpr: number = window.devicePixelRatio;
+
     let mainCanvas: HTMLCanvasElement;
     let backgroundCanvas: HTMLCanvasElement;
     let mainCanvasContext: CanvasRenderingContext2D;
-    let canvasSize: number = $state(100);
+    let pixelSize: number = $state(16);
+    let canvasSize: number = $derived(400);
+    let divisionValue: number = $derived(canvasSize / pixelSize);
     let mainColor: string = $state("#ffffff");
     let lastPosition: Position | null = null;
-
-    const dpr: number = window.devicePixelRatio;
-    const divisionValue: number = $derived(500 / canvasSize);
 
     function drawBackground (): void {
         const context: CanvasRenderingContext2D | null = backgroundCanvas.getContext("2d");
@@ -25,14 +26,16 @@
         const evenColor: string = "#aaaaaa";
         const oddColor: string = "#777777";
 
-        for (let i: number = 0; i < canvasSize; i++) {
+        backgroundCanvasContext.scale(dpr, dpr);
+
+        for (let i: number = 0; i < pixelSize; i++) {
             if (i % 2 === 0) {
                 backgroundCanvasContext.fillStyle = evenColor;
             } else {
                 backgroundCanvasContext.fillStyle = oddColor;
             }
 
-            for (let j: number = 0; j < canvasSize; j++) {
+            for (let j: number = 0; j < pixelSize; j++) {
                 const fillStyle: string = backgroundCanvasContext.fillStyle;
 
                 backgroundCanvasContext.fillStyle = fillStyle === evenColor ? oddColor : evenColor;
@@ -40,8 +43,6 @@
                 backgroundCanvasContext.fillRect(i * divisionValue, j * divisionValue, divisionValue, divisionValue);
             }
         }
-
-        backgroundCanvasContext.scale(dpr, dpr);
     }
 
     function onClickCanvas (event: MouseEvent): void {
@@ -104,6 +105,8 @@
         mainCanvasContext.fillStyle = mainColor;
 
         mainCanvasContext.fillRect(x * divisionValue, y * divisionValue, divisionValue, divisionValue);
+
+        console.log(x * divisionValue, y * divisionValue, divisionValue, divisionValue);
     }
 
     function erase (x: number, y: number): void {
@@ -128,6 +131,7 @@
         }
 
         mainCanvasContext = context;
+        mainCanvasContext.scale(dpr, dpr);
 
         drawBackground();
     });
@@ -136,21 +140,21 @@
 <div id="canvas-container">
     <canvas
         id="main-canvas"
-        width={ 500 * dpr }
-        height={ 500 * dpr }
         bind:this={ mainCanvas }
         onclick={ onClickCanvas }
         oncontextmenu={ onContextMenuCanvas }
         onmousemove={ onMouseMoveCanvas }
         onmouseup={ () => lastPosition = null }
         onmouseleave={ () => lastPosition = null }
+        width={ canvasSize * dpr }
+        height={ canvasSize * dpr }
     >
     </canvas>
     <canvas
         id="background-canvas"
-        width={ 500 * dpr }
-        height={ 500 * dpr }
         bind:this={ backgroundCanvas }
+        width={ canvasSize * dpr }
+        height={ canvasSize * dpr }
     >
     </canvas>
 </div>

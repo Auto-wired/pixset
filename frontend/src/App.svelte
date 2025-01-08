@@ -1,9 +1,9 @@
 <script lang="ts">
-    import PixsetCanvas from "./lib/PixsetCanvas.svelte";
+    import CanvasContainer from "./lib/CanvasContainer.svelte";
 </script>
 
 <main>
-    <PixsetCanvas></PixsetCanvas>
+    <CanvasContainer></CanvasContainer>
 </main>
 
 <style>
