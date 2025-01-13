@@ -1,50 +1,34 @@
 <script lang="ts">
-    import type { Size } from "../types";
+    import type { CanvasInfo } from "../types";
 
-    let { canvasSize }: { canvasSize: Size } = $props();
+    let { canvasInfo, pixelSize, zoomFactor }: { canvasInfo: CanvasInfo, pixelSize: number, zoomFactor: number } = $props();
     let drawCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
-    let pixelSize: number = $state(32);
     // let mainColor: string = $state("#ffffff");
-    let zoomFactor: number = $state(1);
 
     function drawBoard (): void {
-        const xTranslate: number = (canvasSize.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
-        const yTranslate: number = (canvasSize.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
+        const xTranslate: number = (canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
+        const yTranslate: number = (canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
 
-        drawCanvasContext.fillStyle = "#dddddd";
+        drawCanvasContext.fillStyle = "#ededed";
         
-        drawCanvasContext.fillRect(0, 0, canvasSize.width, canvasSize.height);
+        drawCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
         drawCanvasContext.translate(xTranslate, yTranslate);
         drawCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
         drawCanvasContext.translate(-xTranslate, -yTranslate);
     }
 
-    function onWheel (event: WheelEvent): void {
-        const { deltaY } = event;
-
-        if (deltaY < 0) {
-            zoomFactor += 1;
-        } else {
-            zoomFactor -= 1;
-        }
-
-        if (zoomFactor < 1) {
-            zoomFactor = 1;
-        } else if (zoomFactor > 15) {
-            zoomFactor = 15;
-        }
-    }
-
     $effect((): void => {
         const context: CanvasRenderingContext2D | null = drawCanvas.getContext("2d");
 
-        if (context !== null) {
-            drawCanvasContext = context;
-
-            drawCanvasContext.resetTransform();
-            drawCanvasContext.scale(zoomFactor, zoomFactor);
+        if (context === null) {
+            return;
         }
+
+        drawCanvasContext = context;
+
+        drawCanvasContext.resetTransform();
+        drawCanvasContext.scale(zoomFactor, zoomFactor);
 
         drawBoard();
         // drawCenterLine();
@@ -55,22 +39,21 @@
 
     //     drawCanvasContext.scale(1 / zoomFactor, 1 / zoomFactor);
     //     drawCanvasContext.beginPath();
-    //     drawCanvasContext.moveTo(canvasSize.width / 2, 0);
-    //     drawCanvasContext.lineTo(canvasSize.width / 2, canvasSize.height);
+    //     drawCanvasContext.moveTo(canvasInfo.width / 2, 0);
+    //     drawCanvasContext.lineTo(canvasInfo.width / 2, canvasInfo.height);
     //     drawCanvasContext.stroke();
     //     drawCanvasContext.beginPath();
-    //     drawCanvasContext.moveTo(0, canvasSize.height / 2);
-    //     drawCanvasContext.lineTo(canvasSize.width, canvasSize.height / 2);
+    //     drawCanvasContext.moveTo(0, canvasInfo.height / 2);
+    //     drawCanvasContext.lineTo(canvasInfo.width, canvasInfo.height / 2);
     //     drawCanvasContext.stroke();
     // }
 </script>
 
 <canvas
     id="draw-canvas"
-    width={ canvasSize.width }
-    height={ canvasSize.height }
-    bind:this={ drawCanvas }
-    onwheel={ onWheel }>
+    width={ `${ canvasInfo.width }` }
+    height={ `${ canvasInfo.height }` }
+    bind:this={ drawCanvas }>
 </canvas>
 
 <style>

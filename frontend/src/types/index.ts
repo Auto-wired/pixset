@@ -1,9 +1,15 @@
 export interface Position {
     x: number;
     y: number;
+    xSpace: number;
+    ySpace: number;
 };
 
-export interface Size {
+export interface CanvasInfo {
     width: number;
     height: number;
-};
+    xStart: number;
+    yStart: number;
+    xEnd: number;
+    yEnd: number;
+}

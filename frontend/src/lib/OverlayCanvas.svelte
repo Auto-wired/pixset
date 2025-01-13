@@ -1,26 +1,45 @@
 <script lang="ts">
-    import type { Size } from "../types";
+    import type { Position, CanvasInfo } from "../types";
 
-    let { canvasSize }: { canvasSize: Size } = $props();
+    let { canvasInfo, zoomFactor, position }: { canvasInfo: CanvasInfo, zoomFactor: number, position: Position | null } = $props();
     let overlayCanvas: HTMLCanvasElement;
     let overlayCanvasContext: CanvasRenderingContext2D;
+
+    function onMouseMove (): void {
+        drawOverlay();
+    }
+
+    function drawOverlay (): void {
+        overlayCanvasContext.clearRect(0, 0, canvasInfo.width, canvasInfo.height);
+
+        if (position === null) {
+            return;
+        }
+
+        overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.7)";
+
+        overlayCanvasContext.fillRect(canvasInfo.xStart + (position.xSpace * zoomFactor), canvasInfo.yStart + (position.ySpace * zoomFactor), zoomFactor, zoomFactor);
+    }
 
     $effect((): void => {
         const context: CanvasRenderingContext2D | null = overlayCanvas.getContext("2d");
 
-        if (context == null) {
+        if (context === null) {
             return;
         }
 
         overlayCanvasContext = context;
+
+        drawOverlay();
     });
 </script>
 
 <canvas
     id="overlay-canvas"
-    width={ canvasSize.width }
-    height={ canvasSize.height }
-    bind:this={ overlayCanvas }>
+    width={ `${ canvasInfo.width }` }
+    height={ `${ canvasInfo.height }` }
+    bind:this={ overlayCanvas }
+    onmousemove={ onMouseMove }>
 </canvas>
 
 <style>
