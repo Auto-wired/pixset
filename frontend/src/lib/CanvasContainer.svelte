@@ -5,7 +5,7 @@
 
     import { onMount } from "svelte";
 
-    import type { Position, CanvasInfo } from "../types";
+    import type { CanvasInfo, Position } from "../types";
 
     let canvasContainer: HTMLElement;
     let canvasInfo: CanvasInfo = $state({
@@ -16,16 +16,22 @@
         xEnd: 0,
         yEnd: 0,
     });
+    let position: Position = $state({
+        x: 0,
+        y: 0,
+        xSpace: 0,
+        ySpace: 0,
+        isOutOfCanvas: true,
+    });
     let pixelSize: number = $state(32);
     let zoomFactor: number = $state(10);
-    let position: Position | null = $state(null);
 
     function onMouseMove (event: MouseEvent): void {
         setPosition(event);
     }
 
     function onWheel (event: WheelEvent): void {
-        const { deltaY } = event;
+        const { deltaY }: { deltaY: number } = event;
 
         if (deltaY < 0) {
             zoomFactor += 1;
@@ -50,7 +56,7 @@
     }
 
     function setPosition (event: MouseEvent): void {
-        const { offsetX, offsetY }: { offsetX: number, offsetY: number } = event;
+        const { offsetX, offsetY, type }: { offsetX: number, offsetY: number, type: string } = event;
         const xStart: number = Math.ceil(((canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor);
         const yStart: number = Math.ceil(((canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor);
         const xEnd: number = Math.ceil(xStart + (pixelSize * zoomFactor)) - 1;
@@ -61,12 +67,12 @@
         canvasInfo.xEnd = xEnd;
         canvasInfo.yEnd = yEnd;
 
-        if (event.type === "wheel") {
+        if (type === "wheel") {
             return;
         }
 
         if (offsetX < xStart || offsetX > xEnd || offsetY < yStart || offsetY > yEnd) {
-            position = null;
+            position.isOutOfCanvas = true;
 
             return;
         }
@@ -74,17 +80,12 @@
         const xSpace: number = Math.floor((offsetX - xStart) / zoomFactor);
         const ySpace: number = Math.floor((offsetY - yStart) / zoomFactor);
 
-        position = {
-            x: xStart + (xSpace * zoomFactor),
-            y: yStart + (ySpace * zoomFactor),
-            xSpace: xSpace,
-            ySpace: ySpace,
-        };
+        position.x = xStart + (xSpace * zoomFactor);
+        position.y = yStart + (ySpace * zoomFactor);
+        position.xSpace = xSpace;
+        position.ySpace = ySpace;
+        position.isOutOfCanvas = false;
     }
-
-    // $effect((): void => {
-        
-    // });
 
     onMount((): void => {
         setCanvasSize();
@@ -108,14 +109,15 @@
 
     <DrawCanvas
         canvasInfo={ canvasInfo }
+        position={ position }
         pixelSize={ pixelSize }
         zoomFactor={ zoomFactor }>
     </DrawCanvas>
 
     <OverlayCanvas
         canvasInfo={ canvasInfo }
-        zoomFactor={ zoomFactor }
-        position={ position }>
+        position={ position }
+        zoomFactor={ zoomFactor }>
     </OverlayCanvas>
     
 </div>

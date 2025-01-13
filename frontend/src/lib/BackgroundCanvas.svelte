@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { CanvasInfo } from "../types";
 
+    const dpr: number = window.devicePixelRatio;
+
     let { canvasInfo }: { canvasInfo: CanvasInfo } = $props();
     let backgroundCanvas: HTMLCanvasElement;
     let backgroundCanvasContext: CanvasRenderingContext2D;
@@ -30,14 +32,17 @@
 
         backgroundCanvasContext = context;
 
+        backgroundCanvasContext.resetTransform();
+        backgroundCanvasContext.scale(dpr, dpr);
+
         drawBackground();
     });
 </script>
 
 <canvas
     id="background-canvas"
-    width={ `${ canvasInfo.width }` }
-    height={ `${ canvasInfo.height }` }
+    width={ `${ canvasInfo.width * dpr }` }
+    height={ `${ canvasInfo.height * dpr }` }
     bind:this={ backgroundCanvas }>
 </canvas>
 

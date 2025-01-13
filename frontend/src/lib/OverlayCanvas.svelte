@@ -1,7 +1,9 @@
 <script lang="ts">
     import type { Position, CanvasInfo } from "../types";
 
-    let { canvasInfo, zoomFactor, position }: { canvasInfo: CanvasInfo, zoomFactor: number, position: Position | null } = $props();
+    const dpr: number = window.devicePixelRatio;
+
+    let { canvasInfo, position, zoomFactor }: { canvasInfo: CanvasInfo, position: Position, zoomFactor: number } = $props();
     let overlayCanvas: HTMLCanvasElement;
     let overlayCanvasContext: CanvasRenderingContext2D;
 
@@ -12,7 +14,7 @@
     function drawOverlay (): void {
         overlayCanvasContext.clearRect(0, 0, canvasInfo.width, canvasInfo.height);
 
-        if (position === null) {
+        if (position.isOutOfCanvas) {
             return;
         }
 
@@ -30,14 +32,17 @@
 
         overlayCanvasContext = context;
 
+        overlayCanvasContext.resetTransform();
+        overlayCanvasContext.scale(dpr, dpr);
+
         drawOverlay();
     });
 </script>
 
 <canvas
     id="overlay-canvas"
-    width={ `${ canvasInfo.width }` }
-    height={ `${ canvasInfo.height }` }
+    width={ `${ canvasInfo.width * dpr }` }
+    height={ `${ canvasInfo.height * dpr }` }
     bind:this={ overlayCanvas }
     onmousemove={ onMouseMove }>
 </canvas>
@@ -50,5 +55,6 @@
         top: 0;
         left: 0;
         z-index: 2;
+        pointer-events: none;
     }
 </style>

@@ -1,10 +1,24 @@
 <script lang="ts">
-    import type { CanvasInfo } from "../types";
+    import type { CanvasInfo, Position } from "../types";
 
-    let { canvasInfo, pixelSize, zoomFactor }: { canvasInfo: CanvasInfo, pixelSize: number, zoomFactor: number } = $props();
+    const dpr: number = window.devicePixelRatio;
+
+    let { canvasInfo, position, pixelSize, zoomFactor }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number } = $props();
     let drawCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
-    // let mainColor: string = $state("#ffffff");
+    let mainColor: string = $state("#00ff00");
+
+    function onClick (event: MouseEvent): void {
+        if (position.isOutOfCanvas) {
+            return;
+        }
+
+        drawCanvasContext.fillStyle = mainColor;
+
+        drawCanvasContext.fillRect(position.xSpace, position.ySpace, 1, 1);
+
+        console.log(canvasInfo);
+    }
 
     function drawBoard (): void {
         const xTranslate: number = (canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
@@ -15,7 +29,6 @@
         drawCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
         drawCanvasContext.translate(xTranslate, yTranslate);
         drawCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
-        drawCanvasContext.translate(-xTranslate, -yTranslate);
     }
 
     $effect((): void => {
@@ -28,7 +41,7 @@
         drawCanvasContext = context;
 
         drawCanvasContext.resetTransform();
-        drawCanvasContext.scale(zoomFactor, zoomFactor);
+        drawCanvasContext.scale(zoomFactor * dpr, zoomFactor * dpr);
 
         drawBoard();
         // drawCenterLine();
@@ -51,9 +64,10 @@
 
 <canvas
     id="draw-canvas"
-    width={ `${ canvasInfo.width }` }
-    height={ `${ canvasInfo.height }` }
-    bind:this={ drawCanvas }>
+    width={ `${ canvasInfo.width * dpr }` }
+    height={ `${ canvasInfo.height * dpr }` }
+    bind:this={ drawCanvas }
+    onclick={ onClick }>
 </canvas>
 
 <style>
