@@ -7,8 +7,6 @@
 
     import type { CanvasInfo, Position } from "../types";
 
-    const dpr: number = 2;
-
     let canvasContainer: HTMLElement;
     let canvasInfo: CanvasInfo = $state({
         width: 0,
@@ -27,6 +25,7 @@
     });
     let pixelSize: number = $state(17);
     let zoomFactor: number = $state(20);
+    let dpr: number = $state(Math.ceil(window.devicePixelRatio));
 
     function onMouseMove (event: MouseEvent): void {
         setPosition(event);
@@ -57,9 +56,9 @@
 
         canvasContainer.style.width = `${ parseWidth }px`;
         canvasContainer.style.height = `${ parseHeight }px`;
-
         canvasInfo.width = parseWidth;
         canvasInfo.height = parseHeight;
+        dpr = Math.ceil(window.devicePixelRatio);
     }
 
     function setPosition (event: MouseEvent): void {
