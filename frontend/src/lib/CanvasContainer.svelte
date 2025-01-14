@@ -19,12 +19,10 @@
     let position: Position = $state({
         x: 0,
         y: 0,
-        xSpace: 0,
-        ySpace: 0,
         isOutOfCanvas: true,
     });
-    let pixelSize: number = $state(17);
-    let zoomFactor: number = $state(20);
+    let pixelSize: number = $state(100);
+    let zoomFactor: number = $state(1);
     let dpr: number = $state(Math.ceil(window.devicePixelRatio));
 
     function onMouseMove (event: MouseEvent): void {
@@ -83,13 +81,10 @@
             return;
         }
 
-        const xSpace: number = Math.floor((offsetX - xStart) / zoomFactor);
-        const ySpace: number = Math.floor((offsetY - yStart) / zoomFactor);
-
-        position.x = xStart + (xSpace * zoomFactor);
-        position.y = yStart + (ySpace * zoomFactor);
-        position.xSpace = xSpace;
-        position.ySpace = ySpace;
+        // position.x = xStart + (xSpace * zoomFactor);
+        // position.y = yStart + (ySpace * zoomFactor);
+        position.x = Math.floor((offsetX - xStart) / zoomFactor);
+        position.y = Math.floor((offsetY - yStart) / zoomFactor);
         position.isOutOfCanvas = false;
     }
 

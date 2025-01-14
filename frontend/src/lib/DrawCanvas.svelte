@@ -1,30 +1,82 @@
 <script lang="ts">
     import type { CanvasInfo, Position } from "../types";
 
+    let lastPosition : null | Position = null;
+
     let { canvasInfo, position, pixelSize, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number, dpr: number } = $props();
     let drawCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
     let mainColor: string = $state("#00ff00");
 
     function onClick (event: MouseEvent): void {
-        if (position.isOutOfCanvas) {
-            return;
+        draw();
+    }
+
+    function onMouseMove (event: MouseEvent): void {
+        const { buttons }: { buttons: number } = event;
+
+        if (buttons === 1) {
+            draw();
+            continuousDraw();
+
+            lastPosition = {
+                x: position.x,
+                y: position.y,
+                isOutOfCanvas: position.isOutOfCanvas,
+            };
         }
-
-        drawCanvasContext.fillStyle = mainColor;
-
-        drawCanvasContext.fillRect(position.xSpace, position.ySpace, 1, 1);
     }
 
     function drawBoard (): void {
         const xTranslate: number = (canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
         const yTranslate: number = (canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
 
-        drawCanvasContext.fillStyle = "#ededed";
+        drawCanvasContext.fillStyle = "#dedede";
         
         drawCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
         drawCanvasContext.translate(xTranslate, yTranslate);
         drawCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
+    }
+
+    function draw (x: number = position.x, y: number = position.y): void {
+        if (position.isOutOfCanvas) {
+            lastPosition = null;
+
+            return;
+        }
+
+        drawCanvasContext.fillStyle = mainColor;
+
+        drawCanvasContext.fillRect(x, y, 1, 1);
+    }
+
+    function continuousDraw (): void {
+        if (lastPosition === null || lastPosition.isOutOfCanvas) {
+            return;
+        }
+
+        const xOffset: number = position.x - lastPosition.x;
+        const yOffset: number = position.y - lastPosition.y;
+        const maxSize: number = Math.abs(xOffset) > Math.abs(yOffset) ? Math.abs(xOffset) : Math.abs(yOffset);
+        const xDirection: number = xOffset === 0 ? 0 : xOffset > 0 ? 1 : -1;
+        const yDirection: number = yOffset === 0 ? 0 : yOffset > 0 ? 1 : -1;
+        const xIncreaseOffset: number = xOffset === 0 ? 0 : maxSize / Math.abs(xOffset);
+        const yIncreaseOffset: number = yOffset === 0 ? 0 : maxSize / Math.abs(yOffset);
+
+        let x: number = lastPosition.x;
+        let y: number = lastPosition.y;
+
+        for (let i: number = 1; i < maxSize; i++) {
+            if (i % xIncreaseOffset < 1) {
+                x += xDirection;
+            }
+
+            if (i % yIncreaseOffset < 1) {
+                y += yDirection;
+            }
+
+            draw(x, y);
+        }
     }
 
     $effect((): void => {
@@ -63,7 +115,11 @@
     width={ canvasInfo.width * dpr }
     height={ canvasInfo.height * dpr }
     bind:this={ drawCanvas }
-    onclick={ onClick }>
+    onclick={ onClick }
+    onmousemove={ onMouseMove }
+    onmouseup={(): void => {
+        lastPosition = null;
+    }}>
 </canvas>
 
 <style>

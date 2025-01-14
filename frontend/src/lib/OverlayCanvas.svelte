@@ -18,8 +18,7 @@
 
         overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.7)";
 
-        overlayCanvasContext.fillRect(canvasInfo.xStart + (position.xSpace * zoomFactor), canvasInfo.yStart + (position.ySpace * zoomFactor), zoomFactor, zoomFactor);
-        
+        overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * zoomFactor), canvasInfo.yStart + (position.y * zoomFactor), zoomFactor, zoomFactor);
     }
 
     $effect((): void => {

@@ -10,7 +10,5 @@ export interface CanvasInfo {
 export interface Position {
     x: number;
     y: number;
-    xSpace: number;
-    ySpace: number;
     isOutOfCanvas: boolean;
 };
