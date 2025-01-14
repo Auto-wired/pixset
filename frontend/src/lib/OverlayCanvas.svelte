@@ -1,9 +1,7 @@
 <script lang="ts">
     import type { Position, CanvasInfo } from "../types";
 
-    const dpr: number = window.devicePixelRatio;
-
-    let { canvasInfo, position, zoomFactor }: { canvasInfo: CanvasInfo, position: Position, zoomFactor: number } = $props();
+    let { canvasInfo, position, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, zoomFactor: number, dpr: number } = $props();
     let overlayCanvas: HTMLCanvasElement;
     let overlayCanvasContext: CanvasRenderingContext2D;
 
@@ -21,6 +19,7 @@
         overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.7)";
 
         overlayCanvasContext.fillRect(canvasInfo.xStart + (position.xSpace * zoomFactor), canvasInfo.yStart + (position.ySpace * zoomFactor), zoomFactor, zoomFactor);
+        
     }
 
     $effect((): void => {
@@ -41,8 +40,8 @@
 
 <canvas
     id="overlay-canvas"
-    width={ `${ canvasInfo.width * dpr }` }
-    height={ `${ canvasInfo.height * dpr }` }
+    width={ canvasInfo.width * dpr }
+    height={ canvasInfo.height * dpr }
     bind:this={ overlayCanvas }
     onmousemove={ onMouseMove }>
 </canvas>

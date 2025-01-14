@@ -1,9 +1,7 @@
 <script lang="ts">
     import type { CanvasInfo, Position } from "../types";
 
-    const dpr: number = window.devicePixelRatio;
-
-    let { canvasInfo, position, pixelSize, zoomFactor }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number } = $props();
+    let { canvasInfo, position, pixelSize, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number, dpr: number } = $props();
     let drawCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
     let mainColor: string = $state("#00ff00");
@@ -16,8 +14,6 @@
         drawCanvasContext.fillStyle = mainColor;
 
         drawCanvasContext.fillRect(position.xSpace, position.ySpace, 1, 1);
-
-        console.log(canvasInfo);
     }
 
     function drawBoard (): void {
@@ -64,8 +60,8 @@
 
 <canvas
     id="draw-canvas"
-    width={ `${ canvasInfo.width * dpr }` }
-    height={ `${ canvasInfo.height * dpr }` }
+    width={ canvasInfo.width * dpr }
+    height={ canvasInfo.height * dpr }
     bind:this={ drawCanvas }
     onclick={ onClick }>
 </canvas>

@@ -1,16 +1,14 @@
 <script lang="ts">
     import type { CanvasInfo } from "../types";
 
-    const dpr: number = window.devicePixelRatio;
-
-    let { canvasInfo }: { canvasInfo: CanvasInfo } = $props();
+    let { canvasInfo, dpr }: { canvasInfo: CanvasInfo, dpr: number } = $props();
     let backgroundCanvas: HTMLCanvasElement;
     let backgroundCanvasContext: CanvasRenderingContext2D;
 
     function drawBackground (): void {
         const evenColor: string = "#777777";
         const oddColor: string = "#555555";
-        const backgroundPixelSize: number = 10;
+        const backgroundPixelSize: number = 14;
 
         for (let i: number = 0; i < Math.ceil(canvasInfo.width / backgroundPixelSize); i++) {
             backgroundCanvasContext.fillStyle = i % 2 === 0 ? evenColor : oddColor;
@@ -41,8 +39,8 @@
 
 <canvas
     id="background-canvas"
-    width={ `${ canvasInfo.width * dpr }` }
-    height={ `${ canvasInfo.height * dpr }` }
+    width={ canvasInfo.width * dpr }
+    height={ canvasInfo.height * dpr }
     bind:this={ backgroundCanvas }>
 </canvas>
 

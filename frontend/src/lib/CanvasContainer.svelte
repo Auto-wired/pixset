@@ -7,6 +7,8 @@
 
     import type { CanvasInfo, Position } from "../types";
 
+    const dpr: number = 2;
+
     let canvasContainer: HTMLElement;
     let canvasInfo: CanvasInfo = $state({
         width: 0,
@@ -23,8 +25,8 @@
         ySpace: 0,
         isOutOfCanvas: true,
     });
-    let pixelSize: number = $state(32);
-    let zoomFactor: number = $state(10);
+    let pixelSize: number = $state(17);
+    let zoomFactor: number = $state(20);
 
     function onMouseMove (event: MouseEvent): void {
         setPosition(event);
@@ -41,8 +43,8 @@
 
         if (zoomFactor < 1) {
             zoomFactor = 1;
-        } else if (zoomFactor > 15) {
-            zoomFactor = 15;
+        } else if (zoomFactor > 20) {
+            zoomFactor = 20;
         }
 
         setPosition(event);
@@ -50,17 +52,22 @@
 
     function setCanvasSize (): void {
         const { width, height }: { width: number, height: number } = canvasContainer.getBoundingClientRect();
+        const parseWidth: number = Math.floor(width);
+        const parseHeight: number = Math.floor(height);
 
-        canvasInfo.width = width;
-        canvasInfo.height = height;
+        canvasContainer.style.width = `${ parseWidth }px`;
+        canvasContainer.style.height = `${ parseHeight }px`;
+
+        canvasInfo.width = parseWidth;
+        canvasInfo.height = parseHeight;
     }
 
     function setPosition (event: MouseEvent): void {
         const { offsetX, offsetY, type }: { offsetX: number, offsetY: number, type: string } = event;
-        const xStart: number = Math.ceil(((canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor);
-        const yStart: number = Math.ceil(((canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor);
-        const xEnd: number = Math.ceil(xStart + (pixelSize * zoomFactor)) - 1;
-        const yEnd: number = Math.ceil(yStart + (pixelSize * zoomFactor)) - 1;
+        const xStart: number = ((canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor;
+        const yStart: number = ((canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor;
+        const xEnd: number = xStart + (pixelSize * zoomFactor);
+        const yEnd: number = yStart + (pixelSize * zoomFactor);
 
         canvasInfo.xStart = xStart;
         canvasInfo.yStart = yStart;
@@ -71,7 +78,7 @@
             return;
         }
 
-        if (offsetX < xStart || offsetX > xEnd || offsetY < yStart || offsetY > yEnd) {
+        if (offsetX < xStart || offsetX > xEnd - 1 || offsetY < yStart || offsetY > yEnd - 1) {
             position.isOutOfCanvas = true;
 
             return;
@@ -104,20 +111,23 @@
     onwheel={ onWheel }>
 
     <BackgroundCanvas
-        canvasInfo={ canvasInfo }>
+        canvasInfo={ canvasInfo }
+        dpr={ dpr }>
     </BackgroundCanvas>
 
     <DrawCanvas
         canvasInfo={ canvasInfo }
         position={ position }
         pixelSize={ pixelSize }
-        zoomFactor={ zoomFactor }>
+        zoomFactor={ zoomFactor }
+        dpr={ dpr }>
     </DrawCanvas>
 
     <OverlayCanvas
         canvasInfo={ canvasInfo }
         position={ position }
-        zoomFactor={ zoomFactor }>
+        zoomFactor={ zoomFactor }
+        dpr={ dpr }>
     </OverlayCanvas>
     
 </div>
