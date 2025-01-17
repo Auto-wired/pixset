@@ -17,12 +17,12 @@
         yEnd: 0,
     });
     let position: Position = $state({
-        x: 0,
-        y: 0,
+        x: -1,
+        y: -1,
         isOutOfCanvas: true,
     });
     let pixelSize: number = $state(100);
-    let zoomFactor: number = $state(1);
+    let zoomFactor: number = $state(4);
     let dpr: number = $state(Math.ceil(window.devicePixelRatio));
 
     function onMouseMove (event: MouseEvent): void {
@@ -77,15 +77,14 @@
 
         if (offsetX < xStart || offsetX > xEnd - 1 || offsetY < yStart || offsetY > yEnd - 1) {
             position.isOutOfCanvas = true;
-
-            return;
+        } else {
+            position.isOutOfCanvas = false;
         }
 
         // position.x = xStart + (xSpace * zoomFactor);
         // position.y = yStart + (ySpace * zoomFactor);
         position.x = Math.floor((offsetX - xStart) / zoomFactor);
         position.y = Math.floor((offsetY - yStart) / zoomFactor);
-        position.isOutOfCanvas = false;
     }
 
     onMount((): void => {

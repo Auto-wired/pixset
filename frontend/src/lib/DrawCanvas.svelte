@@ -16,7 +16,7 @@
         const { buttons }: { buttons: number } = event;
 
         if (buttons === 1) {
-            draw();
+            // draw();
             continuousDraw();
 
             lastPosition = {
@@ -39,9 +39,7 @@
     }
 
     function draw (x: number = position.x, y: number = position.y): void {
-        if (position.isOutOfCanvas) {
-            lastPosition = null;
-
+        if (x < 0 || x >= pixelSize || y < 0 || y >= pixelSize) {
             return;
         }
 
@@ -51,7 +49,7 @@
     }
 
     function continuousDraw (): void {
-        if (lastPosition === null || lastPosition.isOutOfCanvas) {
+        if (lastPosition === null) {
             return;
         }
 
@@ -66,7 +64,7 @@
         let x: number = lastPosition.x;
         let y: number = lastPosition.y;
 
-        for (let i: number = 1; i < maxSize; i++) {
+        for (let i: number = 0; i < maxSize; i++) {
             if (i % xIncreaseOffset < 1) {
                 x += xDirection;
             }
@@ -95,6 +93,10 @@
         // drawCenterLine();
     });
 
+    window.addEventListener("mouseup", (): void => {
+        lastPosition = null;
+    });
+
     // function drawCenterLine (): void {
     //     drawCanvasContext.strokeStyle = "#ff0000";
 
@@ -116,10 +118,7 @@
     height={ canvasInfo.height * dpr }
     bind:this={ drawCanvas }
     onclick={ onClick }
-    onmousemove={ onMouseMove }
-    onmouseup={(): void => {
-        lastPosition = null;
-    }}>
+    onmousemove={ onMouseMove }>
 </canvas>
 
 <style>
