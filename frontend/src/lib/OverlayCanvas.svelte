@@ -22,6 +22,8 @@
     }
 
     $effect((): void => {
+        console.log("overlay canvas effect");
+        
         const context: CanvasRenderingContext2D | null = overlayCanvas.getContext("2d");
 
         if (context === null) {

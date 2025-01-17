@@ -6,6 +6,7 @@
     let { canvasInfo, position, pixelSize, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number, dpr: number } = $props();
     let drawCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
+    let drawCanvasImageData: ImageData;
     let mainColor: string = $state("#00ff00");
 
     function onClick (event: MouseEvent): void {
@@ -77,7 +78,17 @@
         }
     }
 
+    function saveCanvas (): void {
+        drawCanvasImageData = drawCanvasContext.getImageData(0, 0, canvasInfo.width, canvasInfo.height);
+    }
+
+    function restoreCanvas (): void {
+        drawCanvasContext.putImageData(drawCanvasImageData, 0, 0);
+    }
+
     $effect((): void => {
+        console.log("draw canvas effect");
+
         const context: CanvasRenderingContext2D | null = drawCanvas.getContext("2d");
 
         if (context === null) {

@@ -22,6 +22,8 @@
     }
 
     $effect((): void => {
+        console.log("background canvas effect");
+
         const context: CanvasRenderingContext2D | null = backgroundCanvas.getContext("2d");
 
         if (context === null) {
