@@ -19,10 +19,12 @@
     let position: Position = $state({
         x: -1,
         y: -1,
+        xTranslate: -1,
+        yTranslate: -1,
         isOutOfCanvas: true,
     });
     let pixelSize: number = $state(100);
-    let zoomFactor: number = $state(4);
+    let zoomFactor: number = $state(1);
     let dpr: number = $state(Math.ceil(window.devicePixelRatio));
 
     function onMouseMove (event: MouseEvent): void {
@@ -60,9 +62,11 @@
     }
 
     function setPosition (event: MouseEvent): void {
+        setTranslate();
+
         const { offsetX, offsetY, type }: { offsetX: number, offsetY: number, type: string } = event;
-        const xStart: number = ((canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor;
-        const yStart: number = ((canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor))) * zoomFactor;
+        const xStart: number = position.xTranslate * zoomFactor;
+        const yStart: number = position.yTranslate * zoomFactor;
         const xEnd: number = xStart + (pixelSize * zoomFactor);
         const yEnd: number = yStart + (pixelSize * zoomFactor);
 
@@ -75,20 +79,24 @@
             return;
         }
 
-        if (offsetX < xStart || offsetX > xEnd - 1 || offsetY < yStart || offsetY > yEnd - 1) {
-            position.isOutOfCanvas = true;
-        } else {
-            position.isOutOfCanvas = false;
-        }
-
         // position.x = xStart + (xSpace * zoomFactor);
         // position.y = yStart + (ySpace * zoomFactor);
         position.x = Math.floor((offsetX - xStart) / zoomFactor);
         position.y = Math.floor((offsetY - yStart) / zoomFactor);
+        position.isOutOfCanvas = offsetX < xStart || offsetX > xEnd - 1 || offsetY < yStart || offsetY > yEnd - 1;
+    }
+
+    function setTranslate (): void {
+        const xTranslate: number = (canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
+        const yTranslate: number = (canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
+
+        position.xTranslate = xTranslate;
+        position.yTranslate = yTranslate;
     }
 
     onMount((): void => {
         setCanvasSize();
+        setTranslate();
     });
 
     window.addEventListener("resize", (): void => {
@@ -105,6 +113,9 @@
 
     <BackgroundCanvas
         canvasInfo={ canvasInfo }
+        position={ position }
+        pixelSize={ pixelSize }
+        zoomFactor={ zoomFactor }
         dpr={ dpr }>
     </BackgroundCanvas>
 

@@ -21,9 +21,7 @@
         overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * zoomFactor), canvasInfo.yStart + (position.y * zoomFactor), zoomFactor, zoomFactor);
     }
 
-    $effect((): void => {
-        console.log("overlay canvas effect");
-        
+    $effect((): void => {        
         const context: CanvasRenderingContext2D | null = overlayCanvas.getContext("2d");
 
         if (context === null) {

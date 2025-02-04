@@ -5,38 +5,32 @@
 
     let { canvasInfo, position, pixelSize, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number, dpr: number } = $props();
     let drawCanvas: HTMLCanvasElement;
+    let saveCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
-    let drawCanvasImageData: ImageData;
+    let saveCanvasContext: CanvasRenderingContext2D;
     let mainColor: string = $state("#00ff00");
 
     function onClick (event: MouseEvent): void {
         draw();
+        saveDrawCanvas();
     }
 
     function onMouseMove (event: MouseEvent): void {
         const { buttons }: { buttons: number } = event;
 
         if (buttons === 1) {
-            // draw();
+            draw();
             continuousDraw();
+            saveDrawCanvas();
 
             lastPosition = {
                 x: position.x,
                 y: position.y,
+                xTranslate: position.xTranslate,
+                yTranslate: position.yTranslate,
                 isOutOfCanvas: position.isOutOfCanvas,
             };
         }
-    }
-
-    function drawBoard (): void {
-        const xTranslate: number = (canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
-        const yTranslate: number = (canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
-
-        drawCanvasContext.fillStyle = "#dedede";
-        
-        drawCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
-        drawCanvasContext.translate(xTranslate, yTranslate);
-        drawCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
     }
 
     function draw (x: number = position.x, y: number = position.y): void {
@@ -78,17 +72,29 @@
         }
     }
 
-    function saveCanvas (): void {
-        drawCanvasImageData = drawCanvasContext.getImageData(0, 0, canvasInfo.width, canvasInfo.height);
+    async function saveDrawCanvas (): Promise<void> {
+        if (canvasInfo.width === 0 || canvasInfo.height === 0 || canvasInfo.xStart === 0 || canvasInfo.yStart === 0) {
+            return;
+        }
+
+        const imageData: ImageData = drawCanvasContext.getImageData(canvasInfo.xStart * dpr, canvasInfo.yStart * dpr, (canvasInfo.xEnd - canvasInfo.xStart) * dpr, (canvasInfo.yEnd - canvasInfo.yStart) * dpr);
+        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData, {
+            resizeWidth: pixelSize,
+            resizeHeight: pixelSize,
+        });
+
+        saveCanvasContext.drawImage(imageBitmap, 0, 0);
     }
 
-    function restoreCanvas (): void {
-        drawCanvasContext.putImageData(drawCanvasImageData, 0, 0);
+    async function restoreDrawCanvas (): Promise<void> {
+        const imageData: ImageData = saveCanvasContext.getImageData(0, 0, pixelSize, pixelSize);
+        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
+
+        drawCanvasContext.clearRect(-position.xTranslate, -position.yTranslate, canvasInfo.width, canvasInfo.height);
+        drawCanvasContext.drawImage(imageBitmap, 0, 0);
     }
 
-    $effect((): void => {
-        console.log("draw canvas effect");
-
+    function initializeDrawCanvas (): void {
         const context: CanvasRenderingContext2D | null = drawCanvas.getContext("2d");
 
         if (context === null) {
@@ -96,12 +102,28 @@
         }
 
         drawCanvasContext = context;
+        drawCanvasContext.imageSmoothingEnabled = false;
+        drawCanvasContext.imageSmoothingQuality = "high";
 
         drawCanvasContext.resetTransform();
         drawCanvasContext.scale(zoomFactor * dpr, zoomFactor * dpr);
+        drawCanvasContext.translate(position.xTranslate, position.yTranslate);
+    }
 
-        drawBoard();
-        // drawCenterLine();
+    function initializeSaveCanvas (): void {
+        const context: CanvasRenderingContext2D | null = saveCanvas.getContext("2d");
+
+        if (context === null) {
+            return;
+        }
+
+        saveCanvasContext = context;
+    }
+
+    $effect((): void => {
+        initializeDrawCanvas();
+        initializeSaveCanvas();
+        restoreDrawCanvas();
     });
 
     window.addEventListener("mouseup", (): void => {
@@ -131,6 +153,12 @@
     onclick={ onClick }
     onmousemove={ onMouseMove }>
 </canvas>
+<canvas
+    id="save-canvas"
+    width={ pixelSize }
+    height={ pixelSize }
+    bind:this={ saveCanvas }>
+</canvas>
 
 <style>
     #draw-canvas {
@@ -140,5 +168,12 @@
         top: 0;
         left: 0;
         z-index: 1;
+    }
+
+    #save-canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 2;
     }
 </style>
