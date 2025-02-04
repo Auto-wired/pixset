@@ -18,19 +18,35 @@
     function onMouseMove (event: MouseEvent): void {
         const { buttons }: { buttons: number } = event;
 
-        if (buttons === 1) {
-            draw();
-            continuousDraw();
-            saveDrawCanvas();
+        switch (buttons) {
+            case 1:
+                draw();
 
-            lastPosition = {
-                x: position.x,
-                y: position.y,
-                xTranslate: position.xTranslate,
-                yTranslate: position.yTranslate,
-                isOutOfCanvas: position.isOutOfCanvas,
-            };
+                break;
+            case 2:
+                erase();
+
+                break;
+            default:
+                return;
         }
+
+        continuousAction(buttons);
+        saveDrawCanvas();
+
+        lastPosition = {
+            x: position.x,
+            y: position.y,
+            xTranslate: position.xTranslate,
+            yTranslate: position.yTranslate,
+            isOutOfCanvas: position.isOutOfCanvas,
+        };
+    }
+
+    function onContextMenu (event: MouseEvent): void {
+        event.preventDefault();
+        erase();
+        saveDrawCanvas();
     }
 
     function draw (x: number = position.x, y: number = position.y): void {
@@ -43,7 +59,7 @@
         drawCanvasContext.fillRect(x, y, 1, 1);
     }
 
-    function continuousDraw (): void {
+    function continuousAction (actionType: number): void {
         if (lastPosition === null) {
             return;
         }
@@ -68,8 +84,16 @@
                 y += yDirection;
             }
 
-            draw(x, y);
+            if (actionType === 1) {
+                draw(x, y);
+            } else if (actionType === 2) {
+                erase(x, y);
+            }
         }
+    }
+
+    function erase (x: number = position.x, y: number = position.y): void {
+        drawCanvasContext.clearRect(x, y, 1, 1);
     }
 
     async function saveDrawCanvas (): Promise<void> {
@@ -83,6 +107,7 @@
             resizeHeight: pixelSize,
         });
 
+        saveCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
         saveCanvasContext.drawImage(imageBitmap, 0, 0);
     }
 
@@ -151,7 +176,8 @@
     height={ canvasInfo.height * dpr }
     bind:this={ drawCanvas }
     onclick={ onClick }
-    onmousemove={ onMouseMove }>
+    onmousemove={ onMouseMove }
+    oncontextmenu={ onContextMenu }>
 </canvas>
 <canvas
     id="save-canvas"
