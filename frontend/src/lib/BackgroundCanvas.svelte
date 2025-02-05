@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { CanvasInfo, CanvasOption, Position } from "../types";
+    import type { CanvasInfo, CanvasOption } from "../types";
 
-    let { canvasInfo, canvasOption, position, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number } = $props();
+    let { canvasInfo, canvasOption, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, dpr: number } = $props();
     let backgroundCanvas: HTMLCanvasElement;
     let boardCanvas: HTMLCanvasElement;
     let backgroundCanvasContext: CanvasRenderingContext2D;
@@ -24,7 +24,7 @@
     }
 
     function drawBoard (): void {
-        boardCanvasContext.fillStyle = "#dedede";
+        boardCanvasContext.fillStyle = "#333333";
         
         boardCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
         boardCanvasContext.translate(canvasInfo.xTranslate, canvasInfo.yTranslate);

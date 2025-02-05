@@ -96,7 +96,6 @@
     <BackgroundCanvas
         canvasInfo={ canvasInfo }
         canvasOption={ canvasOption }
-        position={ position }
         dpr={ dpr }>
     </BackgroundCanvas>
 
@@ -104,7 +103,10 @@
         canvasInfo={ canvasInfo }
         canvasOption={ canvasOption }
         position={ position }
-        dpr={ dpr }>
+        dpr={ dpr }
+        setPosition={(event: MouseEvent) => {
+            setPosition(event);
+        }}>
     </DrawCanvas>
 
     <OverlayCanvas

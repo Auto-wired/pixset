@@ -1,20 +1,19 @@
 <script lang="ts">
     import type { CanvasInfo, CanvasOption, Position } from "../types";
 
-    let lastPosition : null | Position = null;
-
-    let { canvasInfo, canvasOption, position, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number } = $props();
+    let { canvasInfo, canvasOption, position, dpr, setPosition }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number, setPosition: (event: MouseEvent) => void } = $props();
     let drawCanvas: HTMLCanvasElement;
     let saveCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
     let saveCanvasContext: CanvasRenderingContext2D;
-    let mainColor: string = $state("#00ff00");
+    let lastPosition : null | Position = null;
 
     function onClick (event: MouseEvent): void {
+        setPosition(event);
         draw();
         saveDrawCanvas();
     }
-
+1
     function onMouseMove (event: MouseEvent): void {
         const { buttons }: { buttons: number } = event;
 
@@ -43,6 +42,7 @@
 
     function onContextMenu (event: MouseEvent): void {
         event.preventDefault();
+
         erase();
         saveDrawCanvas();
     }
@@ -52,7 +52,7 @@
             return;
         }
 
-        drawCanvasContext.fillStyle = mainColor;
+        drawCanvasContext.fillStyle = canvasOption.mainColor;
 
         drawCanvasContext.fillRect(x, y, 1, 1);
     }

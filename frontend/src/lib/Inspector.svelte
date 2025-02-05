@@ -11,4 +11,9 @@
     { /if }
 </div>
 
-<style></style>
+<style>
+    #inspector {
+        width: 15%;
+        height: 100%;
+    }
+</style>

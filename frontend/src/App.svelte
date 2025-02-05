@@ -1,9 +1,11 @@
 <script lang="ts">
+    import Toolbar from "./lib/Toolbar.svelte";
     import CanvasContainer from "./lib/CanvasContainer.svelte";
     import Inspector from "./lib/Inspector.svelte";
 </script>
 
 <main>
+    <Toolbar></Toolbar>
     <CanvasContainer></CanvasContainer>
     <Inspector></Inspector>
 </main>

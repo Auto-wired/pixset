@@ -19,8 +19,8 @@ const canvasOption: CanvasOption = $state({
 });
 
 const position: Position = $state({
-    x: 0,
-    y: 0,
+    x: -1,
+    y: -1,
     isOutOfCanvas: true,
 });
 
