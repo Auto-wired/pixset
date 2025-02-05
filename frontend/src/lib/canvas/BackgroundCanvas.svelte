@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { CanvasInfo, CanvasOption } from "../types";
+    import type { CanvasInfo, CanvasOption } from "../../types";
 
     let { canvasInfo, canvasOption, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, dpr: number } = $props();
     let backgroundCanvas: HTMLCanvasElement;

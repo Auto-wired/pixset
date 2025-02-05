@@ -9,6 +9,7 @@
 <style>
     #toolbar {
         width: 15%;
-        height: 100%;
+        height: 95%;
+        padding-left: 4px;
     }
 </style>

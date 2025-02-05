@@ -9,6 +9,7 @@ const canvasInfo: CanvasInfo = $state({
     yEnd: 0,
     xTranslate: 0,
     yTranslate: 0,
+    overlayCanvasVisibility: true,
 });
 
 const canvasOption: CanvasOption = $state({

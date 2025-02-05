@@ -4,7 +4,7 @@
     import OverlayCanvas from "./OverlayCanvas.svelte";
 
     import { onMount } from "svelte";
-    import { canvasInfo, canvasOption, position } from "../structures/shared.svelte";
+    import { canvasInfo, canvasOption, position } from "../../structures/shared.svelte";
 
     let canvasContainer: HTMLElement;
     let dpr: number = $state(Math.ceil(window.devicePixelRatio));
@@ -108,7 +108,7 @@
             setPosition(event);
         }}>
     </DrawCanvas>
-
+    
     <OverlayCanvas
         canvasInfo={ canvasInfo }
         canvasOption={ canvasOption }

@@ -7,6 +7,7 @@ export interface CanvasInfo {
     yEnd: number;
     xTranslate: number,
     yTranslate: number,
+    overlayCanvasVisibility: boolean,
 }
 
 export interface CanvasOption {

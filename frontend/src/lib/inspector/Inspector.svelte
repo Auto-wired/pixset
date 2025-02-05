@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { canvasOption, position } from "../structures/shared.svelte";
+    import { canvasOption, position } from "../../structures/shared.svelte";
 </script>
 
 <div id="inspector">
@@ -14,6 +14,7 @@
 <style>
     #inspector {
         width: 15%;
-        height: 100%;
+        height: 95%;
+        padding-left: 4px;
     }
 </style>

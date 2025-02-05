@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { CanvasInfo, CanvasOption, Position } from "../types";
+    import type { CanvasInfo, CanvasOption, Position } from "../../types";
 
     let { canvasInfo, canvasOption, position, dpr, setPosition }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number, setPosition: (event: MouseEvent) => void } = $props();
     let drawCanvas: HTMLCanvasElement;
@@ -8,12 +8,14 @@
     let saveCanvasContext: CanvasRenderingContext2D;
     let lastPosition : null | Position = null;
 
-    function onClick (event: MouseEvent): void {
+    function onMouseDown (event: MouseEvent): void {
         setPosition(event);
         draw();
         saveDrawCanvas();
+
+        canvasInfo.overlayCanvasVisibility = false;
     }
-1
+
     function onMouseMove (event: MouseEvent): void {
         const { buttons }: { buttons: number } = event;
 
@@ -27,6 +29,8 @@
 
                 break;
             default:
+                canvasInfo.overlayCanvasVisibility = true;
+
                 return;
         }
 
@@ -173,7 +177,7 @@
     width={ canvasInfo.width * dpr }
     height={ canvasInfo.height * dpr }
     bind:this={ drawCanvas }
-    onclick={ onClick }
+    onmousedown={ onMouseDown }
     onmousemove={ onMouseMove }
     oncontextmenu={ onContextMenu }>
 </canvas>
