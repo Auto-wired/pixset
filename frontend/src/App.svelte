@@ -1,11 +1,11 @@
 <script lang="ts">
     import CanvasContainer from "./lib/CanvasContainer.svelte";
-    import Test from "./lib/Test.svelte";
+    import Inspector from "./lib/Inspector.svelte";
 </script>
 
 <main>
     <CanvasContainer></CanvasContainer>
-     <!-- <Test></Test> -->
+    <Inspector></Inspector>
 </main>
 
 <style>
@@ -13,7 +13,7 @@
         width: 100%;
         height: 100%;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
         /* background-color: #000000; */
     }

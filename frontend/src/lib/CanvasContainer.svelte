@@ -4,27 +4,9 @@
     import OverlayCanvas from "./OverlayCanvas.svelte";
 
     import { onMount } from "svelte";
-
-    import type { CanvasInfo, Position } from "../types";
+    import { canvasInfo, canvasOption, position } from "../structures/shared.svelte";
 
     let canvasContainer: HTMLElement;
-    let canvasInfo: CanvasInfo = $state({
-        width: 0,
-        height: 0,
-        xStart: 0,
-        yStart: 0,
-        xEnd: 0,
-        yEnd: 0,
-    });
-    let position: Position = $state({
-        x: -1,
-        y: -1,
-        xTranslate: -1,
-        yTranslate: -1,
-        isOutOfCanvas: true,
-    });
-    let pixelSize: number = $state(100);
-    let zoomFactor: number = $state(1);
     let dpr: number = $state(Math.ceil(window.devicePixelRatio));
 
     function onMouseMove (event: MouseEvent): void {
@@ -35,15 +17,15 @@
         const { deltaY }: { deltaY: number } = event;
 
         if (deltaY < 0) {
-            zoomFactor += 1;
+            canvasOption.zoomFactor += 1;
         } else {
-            zoomFactor -= 1;
+            canvasOption.zoomFactor -= 1;
         }
 
-        if (zoomFactor < 1) {
-            zoomFactor = 1;
-        } else if (zoomFactor > 20) {
-            zoomFactor = 20;
+        if (canvasOption.zoomFactor < 1) {
+            canvasOption.zoomFactor = 1;
+        } else if (canvasOption.zoomFactor > 20) {
+            canvasOption.zoomFactor = 20;
         }
 
         setPosition(event);
@@ -65,10 +47,10 @@
         setTranslate();
 
         const { offsetX, offsetY, type }: { offsetX: number, offsetY: number, type: string } = event;
-        const xStart: number = position.xTranslate * zoomFactor;
-        const yStart: number = position.yTranslate * zoomFactor;
-        const xEnd: number = xStart + (pixelSize * zoomFactor);
-        const yEnd: number = yStart + (pixelSize * zoomFactor);
+        const xStart: number = canvasInfo.xTranslate * canvasOption.zoomFactor;
+        const yStart: number = canvasInfo.yTranslate * canvasOption.zoomFactor;
+        const xEnd: number = xStart + (canvasOption.pixelSize * canvasOption.zoomFactor);
+        const yEnd: number = yStart + (canvasOption.pixelSize * canvasOption.zoomFactor);
 
         canvasInfo.xStart = xStart;
         canvasInfo.yStart = yStart;
@@ -79,19 +61,19 @@
             return;
         }
 
-        // position.x = xStart + (xSpace * zoomFactor);
-        // position.y = yStart + (ySpace * zoomFactor);
-        position.x = Math.floor((offsetX - xStart) / zoomFactor);
-        position.y = Math.floor((offsetY - yStart) / zoomFactor);
+        // position.x = xStart + (xSpace * canvasOption.zoomFactor);
+        // position.y = yStart + (ySpace * canvasOption.zoomFactor);
+        position.x = Math.floor((offsetX - xStart) / canvasOption.zoomFactor);
+        position.y = Math.floor((offsetY - yStart) / canvasOption.zoomFactor);
         position.isOutOfCanvas = offsetX < xStart || offsetX > xEnd - 1 || offsetY < yStart || offsetY > yEnd - 1;
     }
 
     function setTranslate (): void {
-        const xTranslate: number = (canvasInfo.width / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
-        const yTranslate: number = (canvasInfo.height / (2 * zoomFactor)) - ((pixelSize * zoomFactor) / (2 * zoomFactor));
+        const xTranslate: number = (canvasInfo.width / (2 * canvasOption.zoomFactor)) - ((canvasOption.pixelSize * canvasOption.zoomFactor) / (2 * canvasOption.zoomFactor));
+        const yTranslate: number = (canvasInfo.height / (2 * canvasOption.zoomFactor)) - ((canvasOption.pixelSize * canvasOption.zoomFactor) / (2 * canvasOption.zoomFactor));
 
-        position.xTranslate = xTranslate;
-        position.yTranslate = yTranslate;
+        canvasInfo.xTranslate = xTranslate;
+        canvasInfo.yTranslate = yTranslate;
     }
 
     onMount((): void => {
@@ -113,24 +95,22 @@
 
     <BackgroundCanvas
         canvasInfo={ canvasInfo }
+        canvasOption={ canvasOption }
         position={ position }
-        pixelSize={ pixelSize }
-        zoomFactor={ zoomFactor }
         dpr={ dpr }>
     </BackgroundCanvas>
 
     <DrawCanvas
         canvasInfo={ canvasInfo }
+        canvasOption={ canvasOption }
         position={ position }
-        pixelSize={ pixelSize }
-        zoomFactor={ zoomFactor }
         dpr={ dpr }>
     </DrawCanvas>
 
     <OverlayCanvas
         canvasInfo={ canvasInfo }
+        canvasOption={ canvasOption }
         position={ position }
-        zoomFactor={ zoomFactor }
         dpr={ dpr }>
     </OverlayCanvas>
     

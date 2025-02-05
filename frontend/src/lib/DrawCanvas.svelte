@@ -1,9 +1,9 @@
 <script lang="ts">
-    import type { CanvasInfo, Position } from "../types";
+    import type { CanvasInfo, CanvasOption, Position } from "../types";
 
     let lastPosition : null | Position = null;
 
-    let { canvasInfo, position, pixelSize, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number, dpr: number } = $props();
+    let { canvasInfo, canvasOption, position, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number } = $props();
     let drawCanvas: HTMLCanvasElement;
     let saveCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
@@ -37,8 +37,6 @@
         lastPosition = {
             x: position.x,
             y: position.y,
-            xTranslate: position.xTranslate,
-            yTranslate: position.yTranslate,
             isOutOfCanvas: position.isOutOfCanvas,
         };
     }
@@ -50,7 +48,7 @@
     }
 
     function draw (x: number = position.x, y: number = position.y): void {
-        if (x < 0 || x >= pixelSize || y < 0 || y >= pixelSize) {
+        if (x < 0 || x >= canvasOption.pixelSize || y < 0 || y >= canvasOption.pixelSize) {
             return;
         }
 
@@ -103,19 +101,19 @@
 
         const imageData: ImageData = drawCanvasContext.getImageData(canvasInfo.xStart * dpr, canvasInfo.yStart * dpr, (canvasInfo.xEnd - canvasInfo.xStart) * dpr, (canvasInfo.yEnd - canvasInfo.yStart) * dpr);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData, {
-            resizeWidth: pixelSize,
-            resizeHeight: pixelSize,
+            resizeWidth: canvasOption.pixelSize,
+            resizeHeight: canvasOption.pixelSize,
         });
 
-        saveCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
+        saveCanvasContext.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
         saveCanvasContext.drawImage(imageBitmap, 0, 0);
     }
 
     async function restoreDrawCanvas (): Promise<void> {
-        const imageData: ImageData = saveCanvasContext.getImageData(0, 0, pixelSize, pixelSize);
+        const imageData: ImageData = saveCanvasContext.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
 
-        drawCanvasContext.clearRect(-position.xTranslate, -position.yTranslate, canvasInfo.width, canvasInfo.height);
+        drawCanvasContext.clearRect(-canvasInfo.xTranslate, -canvasInfo.yTranslate, canvasInfo.width, canvasInfo.height);
         drawCanvasContext.drawImage(imageBitmap, 0, 0);
     }
 
@@ -131,8 +129,8 @@
         drawCanvasContext.imageSmoothingQuality = "high";
 
         drawCanvasContext.resetTransform();
-        drawCanvasContext.scale(zoomFactor * dpr, zoomFactor * dpr);
-        drawCanvasContext.translate(position.xTranslate, position.yTranslate);
+        drawCanvasContext.scale(canvasOption.zoomFactor * dpr, canvasOption.zoomFactor * dpr);
+        drawCanvasContext.translate(canvasInfo.xTranslate, canvasInfo.yTranslate);
     }
 
     function initializeSaveCanvas (): void {
@@ -181,8 +179,8 @@
 </canvas>
 <canvas
     id="save-canvas"
-    width={ pixelSize }
-    height={ pixelSize }
+    width={ canvasOption.pixelSize }
+    height={ canvasOption.pixelSize }
     bind:this={ saveCanvas }>
 </canvas>
 
@@ -197,9 +195,6 @@
     }
 
     #save-canvas {
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 2;
+        background-color: #000000;
     }
 </style>

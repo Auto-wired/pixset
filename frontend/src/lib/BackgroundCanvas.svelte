@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { CanvasInfo, Position } from "../types";
+    import type { CanvasInfo, CanvasOption, Position } from "../types";
 
-    let { canvasInfo, position, pixelSize, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, pixelSize: number, zoomFactor: number, dpr: number } = $props();
+    let { canvasInfo, canvasOption, position, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number } = $props();
     let backgroundCanvas: HTMLCanvasElement;
     let boardCanvas: HTMLCanvasElement;
     let backgroundCanvasContext: CanvasRenderingContext2D;
@@ -27,8 +27,8 @@
         boardCanvasContext.fillStyle = "#dedede";
         
         boardCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
-        boardCanvasContext.translate(position.xTranslate, position.yTranslate);
-        boardCanvasContext.clearRect(0, 0, pixelSize, pixelSize);
+        boardCanvasContext.translate(canvasInfo.xTranslate, canvasInfo.yTranslate);
+        boardCanvasContext.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
     }
 
     function initializeBackgroundCanvas (): void {
@@ -56,7 +56,7 @@
         boardCanvasContext = context;
 
         boardCanvasContext.resetTransform();
-        boardCanvasContext.scale(zoomFactor * dpr, zoomFactor * dpr);
+        boardCanvasContext.scale(canvasOption.zoomFactor * dpr, canvasOption.zoomFactor * dpr);
 
         drawBoard();
     }

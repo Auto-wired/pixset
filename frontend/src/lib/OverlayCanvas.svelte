@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { Position, CanvasInfo } from "../types";
+    import type { CanvasInfo, CanvasOption, Position } from "../types";
 
-    let { canvasInfo, position, zoomFactor, dpr }: { canvasInfo: CanvasInfo, position: Position, zoomFactor: number, dpr: number } = $props();
+    let { canvasInfo, canvasOption, position, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number } = $props();
     let overlayCanvas: HTMLCanvasElement;
     let overlayCanvasContext: CanvasRenderingContext2D;
 
@@ -18,7 +18,7 @@
 
         overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.7)";
 
-        overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * zoomFactor), canvasInfo.yStart + (position.y * zoomFactor), zoomFactor, zoomFactor);
+        overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * canvasOption.zoomFactor), canvasInfo.yStart + (position.y * canvasOption.zoomFactor), canvasOption.zoomFactor, canvasOption.zoomFactor);
     }
 
     $effect((): void => {        
