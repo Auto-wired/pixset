@@ -111,6 +111,8 @@
 
         saveCanvasContext.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
         saveCanvasContext.drawImage(imageBitmap, 0, 0);
+
+        canvasInfo.imageDataUrl = saveCanvas.toDataURL("image/png");
     }
 
     async function restoreDrawCanvas (): Promise<void> {

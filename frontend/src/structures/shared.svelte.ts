@@ -1,4 +1,4 @@
-import type { CanvasInfo, CanvasOption, Position } from "../types";
+import type { CanvasInfo, CanvasOption, Position, Modal } from "../types";
 
 const canvasInfo: CanvasInfo = $state({
     width: 0,
@@ -10,6 +10,7 @@ const canvasInfo: CanvasInfo = $state({
     xTranslate: 0,
     yTranslate: 0,
     overlayCanvasVisibility: true,
+    imageDataUrl: "",
 });
 
 const canvasOption: CanvasOption = $state({
@@ -25,4 +26,20 @@ const position: Position = $state({
     isOutOfCanvas: true,
 });
 
-export { canvasInfo, canvasOption, position };
+const modal: Modal = $state({
+    isOpen: false,
+    title: "",
+    open: (): void => {
+        modal.isOpen = true;
+    },
+    close: (): void => {
+        modal.isOpen = false;
+    },
+});
+
+export {
+    canvasInfo,
+    canvasOption,
+    position,
+    modal,
+};

@@ -1,9 +1,9 @@
 <script lang="ts">
-
+    import Transfer from "./Transfer.svelte";
 </script>
 
 <div id="toolbar">
-    <button>Save</button>
+    <Transfer></Transfer>
 </div>
 
 <style>
