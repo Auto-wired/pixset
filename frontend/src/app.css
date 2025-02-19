@@ -1,8 +1,17 @@
+@font-face {
+    font-family: "galmuri7";
+    src: url("./assets/fonts/Galmuri7.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+}
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     outline: none;
+    user-select: none;
+    font-family: "galmuri7";
 }
 
 html, body, #app {
@@ -10,10 +19,18 @@ html, body, #app {
     height: 100%;
 }
 
-button {
+button, label {
     cursor: pointer;
 }
 
 input {
     padding: 8px;
+}
+
+input::-webkit-inner-spin-button {
+    display: none;
+}
+
+input:disabled {
+    opacity: 0.5;
 }
