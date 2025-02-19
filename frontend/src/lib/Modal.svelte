@@ -7,11 +7,16 @@
 
 {#if modal.isOpen}
     <div class="modal">
+
+        <!-- background -->
         <div
             role="none"
             class="background"
             onclick={ modal.close }>
         </div>
+        <!-- background -->
+
+        <!-- content -->
         <div class="content">
             <div class="header">
                 <p class="title">{ modal.title }</p>
@@ -23,6 +28,8 @@
             </div>
             {@render children()}
         </div>
+        <!-- content -->
+         
     </div>
 {/if}
 
@@ -59,7 +66,6 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 20px;
         border-bottom: 1px solid #000000;
     }
 
