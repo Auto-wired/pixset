@@ -1,4 +1,4 @@
-import type { CanvasInfo, CanvasOption, Position, Modal } from "../types";
+import type { CanvasInfo, CanvasOption, Position, Modal, OffscreenCanvasInstance } from "../types";
 
 const canvasInfo: CanvasInfo = $state({
     width: 0,
@@ -9,8 +9,7 @@ const canvasInfo: CanvasInfo = $state({
     yEnd: 0,
     xTranslate: 0,
     yTranslate: 0,
-    overlayCanvasVisibility: true,
-    imageDataUrl: "",
+    overlayCanvasVisibility: true
 });
 
 const canvasOption: CanvasOption = $state({
@@ -37,9 +36,15 @@ const modal: Modal = $state({
     },
 });
 
+const offscreenCanvasInstance: OffscreenCanvasInstance = $state({
+    canvas: new OffscreenCanvas(0, 0),
+    context: new OffscreenCanvas(0, 0).getContext("2d") as OffscreenCanvasRenderingContext2D,
+});
+
 export {
     canvasInfo,
     canvasOption,
     position,
     modal,
+    offscreenCanvasInstance,
 };

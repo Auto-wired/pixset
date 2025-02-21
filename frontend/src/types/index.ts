@@ -5,10 +5,9 @@ export interface CanvasInfo {
     yStart: number;
     xEnd: number;
     yEnd: number;
-    xTranslate: number,
-    yTranslate: number,
-    overlayCanvasVisibility: boolean,
-    imageDataUrl: string,
+    xTranslate: number;
+    yTranslate: number;
+    overlayCanvasVisibility: boolean;
 };
 
 export interface CanvasOption {
@@ -30,3 +29,8 @@ export interface Modal {
     open: () => void;
     close: () => void;
 };
+
+export interface OffscreenCanvasInstance {
+    canvas: OffscreenCanvas;
+    context: OffscreenCanvasRenderingContext2D;
+}

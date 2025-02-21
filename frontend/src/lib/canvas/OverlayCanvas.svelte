@@ -16,20 +16,14 @@
             return;
         }
 
-        overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.5)";
+        overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.7)";
 
         overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * canvasOption.zoomFactor), canvasInfo.yStart + (position.y * canvasOption.zoomFactor), canvasOption.zoomFactor, canvasOption.zoomFactor);
     }
 
-    $effect((): void => {        
-        const context: CanvasRenderingContext2D | null = overlayCanvas.getContext("2d");
-
-        if (context === null) {
-            return;
-        }
-
+    $effect((): void => {
+        overlayCanvasContext = overlayCanvas.getContext("2d") as CanvasRenderingContext2D;
         overlayCanvas.style.visibility = canvasInfo.overlayCanvasVisibility ? "visible" : "hidden";
-        overlayCanvasContext = context;
 
         overlayCanvasContext.resetTransform();
         overlayCanvasContext.scale(dpr, dpr);

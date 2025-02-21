@@ -32,13 +32,7 @@
     }
 
     function initializeBackgroundCanvas (): void {
-        const context: CanvasRenderingContext2D | null = backgroundCanvas.getContext("2d");
-
-        if (context === null) {
-            return;
-        }
-
-        backgroundCanvasContext = context;
+        backgroundCanvasContext = backgroundCanvas.getContext("2d") as CanvasRenderingContext2D;
 
         backgroundCanvasContext.resetTransform();
         backgroundCanvasContext.scale(dpr, dpr);
@@ -47,13 +41,7 @@
     }
 
     function initializeBoardCanvas (): void {
-        const context: CanvasRenderingContext2D | null = boardCanvas.getContext("2d");
-
-        if (context === null) {
-            return;
-        }
-
-        boardCanvasContext = context;
+        boardCanvasContext = boardCanvas.getContext("2d") as CanvasRenderingContext2D;
 
         boardCanvasContext.resetTransform();
         boardCanvasContext.scale(canvasOption.zoomFactor * dpr, canvasOption.zoomFactor * dpr);

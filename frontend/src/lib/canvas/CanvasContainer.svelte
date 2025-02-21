@@ -4,7 +4,7 @@
     import OverlayCanvas from "./OverlayCanvas.svelte";
 
     import { onMount } from "svelte";
-    import { canvasInfo, canvasOption, position } from "../../structures/shared.svelte";
+    import { canvasInfo, canvasOption, position, offscreenCanvasInstance } from "../../structures/shared.svelte";
 
     let canvasContainer: HTMLElement;
     let dpr: number = $state(Math.ceil(window.devicePixelRatio));
@@ -76,9 +76,22 @@
         canvasInfo.yTranslate = yTranslate;
     }
 
+    function initializeOffscreenCanvas (): void {
+        const context: OffscreenCanvasRenderingContext2D | null = offscreenCanvasInstance.canvas.getContext("2d");
+
+        if (context === null) {
+            return;
+        }
+
+        offscreenCanvasInstance.context = context;
+        offscreenCanvasInstance.canvas.width = canvasOption.pixelSize;
+        offscreenCanvasInstance.canvas.height = canvasOption.pixelSize;
+    }
+
     onMount((): void => {
         setCanvasSize();
         setTranslate();
+        initializeOffscreenCanvas();
     });
 
     window.addEventListener("resize", (): void => {
@@ -100,9 +113,6 @@
     </BackgroundCanvas>
 
     <DrawCanvas
-        canvasInfo={ canvasInfo }
-        canvasOption={ canvasOption }
-        position={ position }
         dpr={ dpr }
         setPosition={(event: MouseEvent) => {
             setPosition(event);

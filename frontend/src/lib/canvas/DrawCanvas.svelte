@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type { CanvasInfo, CanvasOption, Position } from "../../types";
+    import type { Position } from "../../types";
 
-    let { canvasInfo, canvasOption, position, dpr, setPosition }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number, setPosition: (event: MouseEvent) => void } = $props();
+    import { canvasInfo, canvasOption, position, offscreenCanvasInstance } from "../../structures/shared.svelte";
+
+    let { dpr, setPosition }: { dpr: number, setPosition: (event: MouseEvent) => void } = $props();
     let drawCanvas: HTMLCanvasElement;
-    let saveCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
-    let saveCanvasContext: CanvasRenderingContext2D;
-    let lastPosition : null | Position = null;
+    let lastPosition : Position | null = null;
 
     function onMouseDown (event: MouseEvent): void {
         setPosition(event);
@@ -109,14 +109,12 @@
             resizeHeight: canvasOption.pixelSize,
         });
 
-        saveCanvasContext.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
-        saveCanvasContext.drawImage(imageBitmap, 0, 0);
-
-        canvasInfo.imageDataUrl = saveCanvas.toDataURL("image/png");
+        offscreenCanvasInstance.context.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        offscreenCanvasInstance.context.drawImage(imageBitmap, 0, 0);
     }
 
     async function restoreDrawCanvas (): Promise<void> {
-        const imageData: ImageData = saveCanvasContext.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
 
         drawCanvasContext.clearRect(-canvasInfo.xTranslate, -canvasInfo.yTranslate, canvasInfo.width, canvasInfo.height);
@@ -124,13 +122,7 @@
     }
 
     function initializeDrawCanvas (): void {
-        const context: CanvasRenderingContext2D | null = drawCanvas.getContext("2d");
-
-        if (context === null) {
-            return;
-        }
-
-        drawCanvasContext = context;
+        drawCanvasContext = drawCanvas.getContext("2d") as CanvasRenderingContext2D;
         drawCanvasContext.imageSmoothingEnabled = false;
         drawCanvasContext.imageSmoothingQuality = "high";
 
@@ -139,19 +131,8 @@
         drawCanvasContext.translate(canvasInfo.xTranslate, canvasInfo.yTranslate);
     }
 
-    function initializeSaveCanvas (): void {
-        const context: CanvasRenderingContext2D | null = saveCanvas.getContext("2d");
-
-        if (context === null) {
-            return;
-        }
-
-        saveCanvasContext = context;
-    }
-
     $effect((): void => {
         initializeDrawCanvas();
-        initializeSaveCanvas();
         restoreDrawCanvas();
     });
 
@@ -183,12 +164,6 @@
     onmousemove={ onMouseMove }
     oncontextmenu={ onContextMenu }>
 </canvas>
-<canvas
-    id="save-canvas"
-    width={ canvasOption.pixelSize }
-    height={ canvasOption.pixelSize }
-    bind:this={ saveCanvas }>
-</canvas>
 
 <style>
     #draw-canvas {
@@ -198,9 +173,5 @@
         top: 0;
         left: 0;
         z-index: 1;
-    }
-
-    #save-canvas {
-        background-color: #000000;
     }
 </style>

@@ -1,7 +1,7 @@
 <script lang="ts">
     import Modal from "../Modal.svelte";
 
-    import { canvasInfo, modal } from "../../structures/shared.svelte";
+    import { canvasOption, modal, offscreenCanvasInstance } from "../../structures/shared.svelte";
 
     let transferType: string = $state("download");
     let imageName: string = $state("");
@@ -12,15 +12,25 @@
 
     modal.title = "Download / Upload Image";
 
-    function downloadImage (): void {
+    async function downloadImage (): Promise<void> {
         if (!validateDownload()) {
             return;
         }
 
+        const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageWidth, imageHeight);
+        const offscreenCanvasContext: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
         const downloadDOM: HTMLAnchorElement = document.createElement("a");
+        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
+
+        offscreenCanvasContext.scale(10, 10);
+        offscreenCanvasContext.drawImage(imageBitmap, 0, 0);
+
+        const blob: Blob = await offscreenCanvas.convertToBlob();
+        const url: string = URL.createObjectURL(blob);
 
         downloadDOM.download = `${ imageName }.${ imageType }`;
-        downloadDOM.href = canvasInfo.imageDataUrl;
+        downloadDOM.href = url;
 
         downloadDOM.click();
         downloadDOM.remove();
@@ -94,6 +104,8 @@
             <!-- download -->
             {#if transferType === "download"}
                 <div id="download-container" class="container">
+
+                    <!-- image name -->
                     <div class="content">
                         <p class="title">Name</p>
                         <input
@@ -102,6 +114,9 @@
                             placeholder="Name"
                             bind:value={ imageName }>
                     </div>
+                    <!-- image name -->
+
+                    <!-- image size -->
                     <div class="content">
                         <p class="title">Size</p>
                         <input
@@ -115,6 +130,9 @@
                             disabled={ isSameSize }
                             bind:value={ imageHeight }>
                     </div>
+                    <!-- image size -->
+
+                    <!-- same size -->
                     <div class="content">
                         <label class="same-size-label">
                             <input
@@ -123,11 +141,16 @@
                             Maintain aspect ratio
                         </label>
                     </div>
+                    <!-- same size -->
+
+                    <!-- image download -->
                     <button
                         id="download-button"
                         onclick={ downloadImage }>
                         Download
                     </button>
+                    <!-- image download -->
+
                 </div>
             <!-- download -->
 
