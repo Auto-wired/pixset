@@ -19,11 +19,14 @@
 
         const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageWidth, imageHeight);
         const offscreenCanvasContext: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
-        const downloadDOM: HTMLAnchorElement = document.createElement("a");
         const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
+        const downloadDOM: HTMLAnchorElement = document.createElement("a");
 
-        offscreenCanvasContext.scale(10, 10);
+        offscreenCanvasContext.imageSmoothingEnabled = false;
+        offscreenCanvasContext.imageSmoothingQuality = "high";
+
+        offscreenCanvasContext.scale(imageWidth / canvasOption.pixelSize, imageHeight / canvasOption.pixelSize);
         offscreenCanvasContext.drawImage(imageBitmap, 0, 0);
 
         const blob: Blob = await offscreenCanvas.convertToBlob();
