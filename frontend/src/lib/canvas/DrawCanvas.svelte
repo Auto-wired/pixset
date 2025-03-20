@@ -9,9 +9,12 @@
     let lastPosition : Position | null = null;
 
     function onMouseDown (event: MouseEvent): void {
+        if (event.buttons !== 1) {
+            return;
+        }
+
         setPosition(event);
         draw();
-        saveDrawCanvas();
 
         canvasInfo.overlayCanvasVisibility = false;
     }
@@ -35,7 +38,6 @@
         }
 
         continuousAction(buttons);
-        saveDrawCanvas();
 
         lastPosition = {
             x: position.x,
@@ -48,7 +50,6 @@
         event.preventDefault();
 
         erase();
-        saveDrawCanvas();
     }
 
     function draw (x: number = position.x, y: number = position.y): void {
@@ -57,8 +58,10 @@
         }
 
         drawCanvasContext.fillStyle = canvasOption.mainColor;
+        offscreenCanvasInstance.context.fillStyle = canvasOption.mainColor;
 
         drawCanvasContext.fillRect(x, y, 1, 1);
+        offscreenCanvasInstance.context.fillRect(x, y, 1, 1);
     }
 
     function continuousAction (actionType: number): void {
@@ -96,21 +99,7 @@
 
     function erase (x: number = position.x, y: number = position.y): void {
         drawCanvasContext.clearRect(x, y, 1, 1);
-    }
-
-    async function saveDrawCanvas (): Promise<void> {
-        if (canvasInfo.width === 0 || canvasInfo.height === 0 || canvasInfo.xStart === 0 || canvasInfo.yStart === 0) {
-            return;
-        }
-
-        const imageData: ImageData = drawCanvasContext.getImageData(canvasInfo.xStart * dpr, canvasInfo.yStart * dpr, (canvasInfo.xEnd - canvasInfo.xStart) * dpr, (canvasInfo.yEnd - canvasInfo.yStart) * dpr);
-        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData, {
-            resizeWidth: canvasOption.pixelSize,
-            resizeHeight: canvasOption.pixelSize,
-        });
-
-        offscreenCanvasInstance.context.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
-        offscreenCanvasInstance.context.drawImage(imageBitmap, 0, 0);
+        offscreenCanvasInstance.context.clearRect(x, y, 1, 1);
     }
 
     async function restoreDrawCanvas (): Promise<void> {

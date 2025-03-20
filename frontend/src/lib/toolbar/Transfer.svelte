@@ -1,75 +1,18 @@
 <script lang="ts">
     import Modal from "../Modal.svelte";
+    import Download from "./Download.svelte";
+    import Upload from "./Upload.svelte";
 
-    import { canvasOption, modal, offscreenCanvasInstance } from "../../structures/shared.svelte";
+    import { modal } from "../../structures/shared.svelte";
 
     let transferType: string = $state("download");
-    let imageName: string = $state("");
-    let imageWidth: number = $state(32);
-    let imageHeight: number = $state(32);
-    let isSameSize: boolean = $state(true);
-    let imageType: string = $state("png");
 
-    modal.title = "Download / Upload Image";
+    $effect(() => {
+        modal.title = `${ transferType.replace(/^\w/, (word: string) => word.toUpperCase()) } Image`;
 
-    async function downloadImage (): Promise<void> {
-        if (!validateDownload()) {
-            return;
+        if (!modal.isOpen) {
+            transferType = "download";
         }
-
-        const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageWidth, imageHeight);
-        const offscreenCanvasContext: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
-        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
-        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
-        const downloadDOM: HTMLAnchorElement = document.createElement("a");
-
-        offscreenCanvasContext.imageSmoothingEnabled = false;
-        offscreenCanvasContext.imageSmoothingQuality = "high";
-
-        offscreenCanvasContext.scale(imageWidth / canvasOption.pixelSize, imageHeight / canvasOption.pixelSize);
-        offscreenCanvasContext.drawImage(imageBitmap, 0, 0);
-
-        const blob: Blob = await offscreenCanvas.convertToBlob();
-        const url: string = URL.createObjectURL(blob);
-
-        downloadDOM.download = `${ imageName }.${ imageType }`;
-        downloadDOM.href = url;
-
-        downloadDOM.click();
-        downloadDOM.remove();
-    }
-
-    function syncSize (): void {
-        if (isSameSize) {
-            imageHeight = imageWidth;
-        }
-    }
-
-    function validateDownload (): boolean {
-        if (imageName.length === 0) {
-            alert("Name!");
-
-            return false;
-        }
-
-        return true;
-    }
-
-    function changeTransferType (): void {
-        const downloadMenuButton: HTMLElement | null = document.getElementById("download-menu-button");
-        const uploadMenuButton: HTMLElement | null = document.getElementById("upload-menu-button");
-        const isDownload: boolean = transferType === "download";
-        const currentActiveType: string = isDownload ? "active" : "deactive";
-        const nextActiveType: string = isDownload ? "deactive" : "active";
-
-        transferType = isDownload ? "upload" : "download";
-
-        downloadMenuButton?.classList.replace(currentActiveType, nextActiveType);
-        uploadMenuButton?.classList.replace(nextActiveType, currentActiveType);
-    }
-
-    $effect((): void => {
-        syncSize();
     });
 </script>
 
@@ -77,7 +20,7 @@
 
     <!-- modal button -->
     <button
-        id="save-button"
+        id="transfer-button"
         onclick={ modal.open }>
         Download/Upload
     </button>
@@ -92,78 +35,28 @@
                 <button
                     id="download-menu-button"
                     class="active"
-                    onclick={ changeTransferType }>
+                    class:active={ transferType === "download" }
+                    class:deactive={ transferType === "upload" }
+                    onclick={ () => transferType = "download" }>
                     Download
                 </button>
                 <button
                     id="upload-menu-button"
                     class="deactive"
-                    onclick={ changeTransferType }>
+                    class:active={ transferType === "upload" }
+                    class:deactive={ transferType === "download" }
+                    onclick={ () => transferType = "upload" }>
                     Upload
                 </button>
             </div>
             <!-- menu -->
 
-            <!-- download -->
+            
             {#if transferType === "download"}
-                <div id="download-container" class="container">
-
-                    <!-- image name -->
-                    <div class="content">
-                        <p class="title">Name</p>
-                        <input
-                            class="name-input"
-                            type="text"
-                            placeholder="Name"
-                            bind:value={ imageName }>
-                    </div>
-                    <!-- image name -->
-
-                    <!-- image size -->
-                    <div class="content">
-                        <p class="title">Size</p>
-                        <input
-                            class="size-input"
-                            type="number"
-                            bind:value={ imageWidth }>
-                        <p style="margin: 0 8px;">X</p>
-                        <input
-                            class="size-input"
-                            type="number"
-                            disabled={ isSameSize }
-                            bind:value={ imageHeight }>
-                    </div>
-                    <!-- image size -->
-
-                    <!-- same size -->
-                    <div class="content">
-                        <label class="same-size-label">
-                            <input
-                                type="checkbox"
-                                bind:checked={ isSameSize }>
-                            Maintain aspect ratio
-                        </label>
-                    </div>
-                    <!-- same size -->
-
-                    <!-- image download -->
-                    <button
-                        id="download-button"
-                        onclick={ downloadImage }>
-                        Download
-                    </button>
-                    <!-- image download -->
-
-                </div>
-            <!-- download -->
-
-            <!-- upload -->
+                <Download></Download>
             {:else if transferType === "upload"}
-                <div id="upload-container" class="container">
-
-                </div>
+                <Upload></Upload>
             {/if}
-            <!-- upload -->
              
         </div>
     </Modal>
@@ -172,13 +65,7 @@
 </div>
 
 <style>
-    input {
-        height: 30px;
-        border: 1px solid #000000;
-        border-radius: 4px;
-    }
-
-    #save-button {
+    #transfer-button {
         width: 160px;
         height: 40px;
         border: none;
@@ -188,7 +75,7 @@
     }
 
     #transfer-modal {
-        width: 320px;
+        width: 360px;
         display: flex;
         flex-direction: column;
     }
@@ -212,47 +99,6 @@
     }
 
     .deactive {
-        color: #FFFFFF;
-        background-color: #000000;
-    }
-
-    .container {
-        width: 100%;
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .content {
-        width: 100%;
-        margin: 4px 0;
-        display: flex;
-        align-items: center;
-    }
-
-    .title {
-        width: 60px;
-    }
-
-    .name-input {
-        width: calc(100% - 60px);
-    }
-
-    .size-input {
-        width: calc(50% - 44px);
-    }
-
-    .same-size-label {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
-
-    #download-button {
-        height: 40px;
-        margin-top: 20px;
-        border: none;
-        border-radius: 4px;
         color: #FFFFFF;
         background-color: #000000;
     }

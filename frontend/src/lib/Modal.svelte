@@ -23,7 +23,7 @@
                 <button
                     class="close-button"
                     onclick={ modal.close }>
-                    X
+                    <img src={ "src/assets/images/close.png" } alt="">
                 </button>
             </div>
             {@render children()}
@@ -87,5 +87,11 @@
         border: none;
         color: #FFFFFF;
         background-color: #000000;
+    }
+
+    .close-button > img {
+        width: 100%;
+        height: 100%;
+        border-radius: 100%;
     }
 </style>
