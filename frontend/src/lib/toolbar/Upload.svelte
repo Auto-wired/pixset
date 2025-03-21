@@ -1,8 +1,12 @@
 <script lang="ts">
+    import { canvasOption, offscreenCanvasInstance } from "../../structures/shared.svelte";
+
     let previewCanvas: HTMLCanvasElement;
     let previewCanvasContext: CanvasRenderingContext2D;
     let fileInput: HTMLInputElement;
     let file: File | null = $state(null);
+
+    const previewCanvasSize: number = 328;
 
     function onInput (event: Event): void {
         const target: HTMLInputElement = event.target as HTMLInputElement;
@@ -11,7 +15,7 @@
         file = files[0];
         fileInput.value = "";
 
-        uploadImage();
+        uploadPreviewImage();
     }
 
     function onDrop (event: DragEvent): void {
@@ -21,24 +25,35 @@
 
         file = dataTransfer.files[0];
 
-        uploadImage();
+        uploadPreviewImage();
+    }
+
+    async function getImageBitmap (size: number): Promise<ImageBitmap> {
+        const imageBitmap: ImageBitmap = await window.createImageBitmap(file as File, {
+            resizeWidth: size,
+            resizeHeight: size,
+        });
+
+        return imageBitmap;
+    }
+
+    async function uploadPreviewImage (): Promise<void> {
+        const imageBitmap: ImageBitmap = await getImageBitmap(previewCanvasSize);
+
+        previewCanvasContext.drawImage(imageBitmap, 0, 0);
     }
 
     async function uploadImage (): Promise<void> {
-        if (file === null) {
-            return;
-        }
+        const imageBitmap: ImageBitmap = await getImageBitmap(canvasOption.pixelSize);
 
-        const imageBitmap = await window.createImageBitmap(file, {
-            resizeWidth: 328,
-            resizeHeight: 328,
-        });
-
-        previewCanvasContext.drawImage(imageBitmap, 0, 0,);
+        offscreenCanvasInstance.context.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        offscreenCanvasInstance.context.drawImage(imageBitmap, 0, 0);
     }
 
     function removeImage (): void {
         file = null;
+
+        previewCanvasContext.clearRect(0, 0, previewCanvasSize, previewCanvasSize);
     }
 
     function initializePreviewCanvas (): void {
@@ -66,17 +81,34 @@
             ondrop={ onDrop }
             bind:this={ fileInput }>
     </div>
-    <canvas
-        id="preview-canvas"
-        width="328"
-        height="328"
+    <div
+        class="preview-box"
         class:active={ file !== null }
-        class:deactive={ file === null }
-        bind:this={ previewCanvas }>
-    </canvas>
+        class:deactive={ file === null }>
+        <canvas
+            id="preview-canvas"
+            width={ previewCanvasSize }
+            height={ previewCanvasSize }
+            bind:this={ previewCanvas }>
+        </canvas>
+        <button
+            class="close-button"
+            onclick={ removeImage }>
+            <img src="src/assets/images/close.png" alt="">
+        </button>
+        <button
+            id="upload-button"
+            onclick={ uploadImage }>
+            Upload
+        </button>
+    </div>
 </div>
 
 <style>
+    #upload-container {
+        position: relative;
+    }
+
     .container {
         width: 100%;
         padding: 16px;
@@ -107,7 +139,14 @@
         font-size: 14px;
     }
 
+    .preview-box {
+        display: flex;
+        flex-direction: column;
+    }
+
     #preview-canvas {
+        width: 100%;
+        border: 1px solid #000000;
         aspect-ratio: 1 / 1;
     }
 
@@ -117,5 +156,35 @@
 
     .deactive {
         display: none;
+    }
+
+    .close-button {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 100%;
+        border: none;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: #FFFFFF;
+        background-color: #000000;
+    }
+
+    .close-button > img {
+        width: 100%;
+        height: 100%;
+        border-radius: 100%;
+    }
+
+    #upload-button {
+        height: 40px;
+        margin-top: 20px;
+        border: none;
+        border-radius: 4px;
+        color: #FFFFFF;
+        background-color: #000000;
     }
 </style>

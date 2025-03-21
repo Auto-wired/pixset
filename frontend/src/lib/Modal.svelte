@@ -23,7 +23,7 @@
                 <button
                     class="close-button"
                     onclick={ modal.close }>
-                    <img src={ "src/assets/images/close.png" } alt="">
+                    <img src={ "src/assets/images/close.png" } alt="close">
                 </button>
             </div>
             {@render children()}
