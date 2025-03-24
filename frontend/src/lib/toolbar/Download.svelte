@@ -20,24 +20,26 @@
 
         const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageWidth, imageHeight);
         const offscreenCanvasContext: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
-        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.width, canvasOption.height);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
-        const downloadDOM: HTMLAnchorElement = document.createElement("a");
+        const link: HTMLAnchorElement = document.createElement("a");
 
         offscreenCanvasContext.imageSmoothingEnabled = false;
         offscreenCanvasContext.imageSmoothingQuality = "high";
 
-        offscreenCanvasContext.scale(imageWidth / canvasOption.pixelSize, imageHeight / canvasOption.pixelSize);
+        offscreenCanvasContext.scale(imageWidth / canvasOption.width, imageHeight / canvasOption.height);
         offscreenCanvasContext.drawImage(imageBitmap, 0, 0);
 
-        const blob: Blob = await offscreenCanvas.convertToBlob({ type: `image/${ imageType }` });
-        const url: string = URL.createObjectURL(blob);
+        const blob: Blob = await offscreenCanvas.convertToBlob({
+            type: `image/${ imageType }`,
+        });
+        const url: string = window.URL.createObjectURL(blob);
 
-        downloadDOM.download = `${ imageName }.${ imageType }`;
-        downloadDOM.href = url;
+        link.download = `${ imageName }.${ imageType }`;
+        link.href = url;
 
-        downloadDOM.click();
-        downloadDOM.remove();
+        link.click();
+        link.remove();
     }
 
     function syncSize (): void {
@@ -48,7 +50,7 @@
 
     function validateDownload (): boolean {
         if (imageName.length === 0) {
-            alert("Name!");
+            alert("name!");
 
             return false;
         }
@@ -108,7 +110,9 @@
                 class="image-type-button"
                 class:active={ imageType === imageTypeItem }
                 class:deactive={ imageType !== imageTypeItem }
-                onclick={ () => imageType = imageTypeItem }>
+                onclick={(): void => {
+                    imageType = imageTypeItem;
+                }}>
                 { imageTypeItem }
             </button>
         {/each}

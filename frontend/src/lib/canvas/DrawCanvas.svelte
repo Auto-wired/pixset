@@ -1,9 +1,10 @@
 <script lang="ts">
     import type { Position } from "../../types";
 
+    import { onMount } from "svelte";
     import { canvasInfo, canvasOption, position, offscreenCanvasInstance } from "../../structures/shared.svelte";
 
-    let { dpr, setPosition }: { dpr: number, setPosition: (event: MouseEvent) => void } = $props();
+    let { dpr, setPosition, setTranslate }: { dpr: number, setPosition: (event: MouseEvent) => void, setTranslate: () => void } = $props();
     let drawCanvas: HTMLCanvasElement;
     let drawCanvasContext: CanvasRenderingContext2D;
     let lastPosition : Position | null = null;
@@ -53,7 +54,7 @@
     }
 
     function draw (x: number = position.x, y: number = position.y): void {
-        if (x < 0 || x >= canvasOption.pixelSize || y < 0 || y >= canvasOption.pixelSize) {
+        if (x < 0 || x >= canvasOption.width || y < 0 || y >= canvasOption.height) {
             return;
         }
 
@@ -69,6 +70,9 @@
             return;
         }
 
+        let x: number = lastPosition.x;
+        let y: number = lastPosition.y;
+
         const xOffset: number = position.x - lastPosition.x;
         const yOffset: number = position.y - lastPosition.y;
         const maxSize: number = Math.abs(xOffset) > Math.abs(yOffset) ? Math.abs(xOffset) : Math.abs(yOffset);
@@ -76,9 +80,6 @@
         const yDirection: number = yOffset === 0 ? 0 : yOffset > 0 ? 1 : -1;
         const xIncreaseOffset: number = xOffset === 0 ? 0 : maxSize / Math.abs(xOffset);
         const yIncreaseOffset: number = yOffset === 0 ? 0 : maxSize / Math.abs(yOffset);
-
-        let x: number = lastPosition.x;
-        let y: number = lastPosition.y;
 
         for (let i: number = 0; i < maxSize; i++) {
             if (i % xIncreaseOffset < 1) {
@@ -103,7 +104,7 @@
     }
 
     async function restoreDrawCanvas (): Promise<void> {
-        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.width, canvasOption.height);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
 
         drawCanvasContext.clearRect(-canvasInfo.xTranslate, -canvasInfo.yTranslate, canvasInfo.width, canvasInfo.height);
@@ -123,6 +124,16 @@
     $effect((): void => {
         initializeDrawCanvas();
         restoreDrawCanvas();
+    });
+
+    onMount((): void => {
+        offscreenCanvasInstance.update = (width: number, height: number): void => {
+            canvasOption.width = width;
+            canvasOption.height = height;
+
+            setTranslate();
+            restoreDrawCanvas();
+        };
     });
 
     window.addEventListener("mouseup", (): void => {

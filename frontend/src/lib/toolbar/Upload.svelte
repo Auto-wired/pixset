@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { canvasOption, offscreenCanvasInstance } from "../../structures/shared.svelte";
+    import { offscreenCanvasInstance, modal } from "../../structures/shared.svelte";
 
     let previewCanvas: HTMLCanvasElement;
     let previewCanvasContext: CanvasRenderingContext2D;
@@ -8,10 +8,17 @@
 
     const previewCanvasSize: number = 328;
 
+    interface PreviewSize {
+        width: number;
+        height: number;
+        resizeWidth: number;
+        resizeHeight: number;
+    };
+
     function onInput (event: Event): void {
         const target: HTMLInputElement = event.target as HTMLInputElement;
         const files: FileList = target.files as FileList;
-        
+
         file = files[0];
         fileInput.value = "";
 
@@ -28,26 +35,68 @@
         uploadPreviewImage();
     }
 
-    async function getImageBitmap (size: number): Promise<ImageBitmap> {
+    function validateFile (): boolean {
+        if (!/image\/(png|jpeg|webp)/.test(file!.type)) {
+            alert("file type!");
+
+            file = null;
+
+            return false;
+        }
+
+        return true;
+    }
+
+    async function getImageBitmap (width: number, height: number): Promise<ImageBitmap> {
         const imageBitmap: ImageBitmap = await window.createImageBitmap(file as File, {
-            resizeWidth: size,
-            resizeHeight: size,
+            resizeWidth: width,
+            resizeHeight: height,
         });
 
         return imageBitmap;
     }
 
-    async function uploadPreviewImage (): Promise<void> {
-        const imageBitmap: ImageBitmap = await getImageBitmap(previewCanvasSize);
+    async function getPreviewSize (): Promise<PreviewSize> {
+        const image: HTMLImageElement = new Image();
 
-        previewCanvasContext.drawImage(imageBitmap, 0, 0);
+        image.src = window.URL.createObjectURL(file as File);
+
+        return new Promise<PreviewSize>((resolve: (value: PreviewSize) => void) => {
+            image.onload = (): void => {
+                const ratio: number = Math.floor((image.width > image.height ? image.width : image.height) / previewCanvasSize);
+
+                resolve({
+                    width: image.width,
+                    height: image.height,
+                    resizeWidth: Math.floor(image.width / ratio),
+                    resizeHeight: Math.floor(image.height / ratio),
+                });
+            }
+        });
+    }
+
+    async function uploadPreviewImage (): Promise<void> {
+        if (!validateFile()) {
+            return;
+        }
+
+        const { resizeWidth, resizeHeight }: PreviewSize = await getPreviewSize();
+        const imageBitmap: ImageBitmap = await getImageBitmap(resizeWidth, resizeHeight);
+
+        previewCanvasContext.drawImage(imageBitmap, previewCanvas.width / 2 - resizeWidth / 2, previewCanvas.height / 2 - resizeHeight / 2);
     }
 
     async function uploadImage (): Promise<void> {
-        const imageBitmap: ImageBitmap = await getImageBitmap(canvasOption.pixelSize);
+        const { width, height }: PreviewSize = await getPreviewSize();
+        const imageBitmap: ImageBitmap = await getImageBitmap(width, height);
 
-        offscreenCanvasInstance.context.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        offscreenCanvasInstance.canvas.width = width;
+        offscreenCanvasInstance.canvas.height = height;
+
+        offscreenCanvasInstance.context.clearRect(0, 0, width, height);
         offscreenCanvasInstance.context.drawImage(imageBitmap, 0, 0);
+        offscreenCanvasInstance.update(width, height);
+        modal.close();
     }
 
     function removeImage (): void {
@@ -146,8 +195,8 @@
 
     #preview-canvas {
         width: 100%;
-        border: 1px solid #000000;
         aspect-ratio: 1 / 1;
+        background-color: #000000;
     }
 
     .active {

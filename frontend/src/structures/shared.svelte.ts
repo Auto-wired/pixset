@@ -13,7 +13,8 @@ const canvasInfo: CanvasInfo = $state({
 });
 
 const canvasOption: CanvasOption = $state({
-    pixelSize: 32,
+    width: 32,
+    height: 32,
     zoomFactor: 1,
     mainColor: "#ff0000",
     subColor: "#ffffff",
@@ -39,6 +40,7 @@ const modal: Modal = $state({
 const offscreenCanvasInstance: OffscreenCanvasInstance = $state({
     canvas: new OffscreenCanvas(0, 0),
     context: new OffscreenCanvas(0, 0).getContext("2d") as OffscreenCanvasRenderingContext2D,
+    update: (width: number, height: number): void => {},
 });
 
 export {

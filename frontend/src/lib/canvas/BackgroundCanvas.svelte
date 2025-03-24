@@ -28,7 +28,7 @@
         
         boardCanvasContext.fillRect(0, 0, canvasInfo.width, canvasInfo.height);
         boardCanvasContext.translate(canvasInfo.xTranslate, canvasInfo.yTranslate);
-        boardCanvasContext.clearRect(0, 0, canvasOption.pixelSize, canvasOption.pixelSize);
+        boardCanvasContext.clearRect(0, 0, canvasOption.width, canvasOption.height);
     }
 
     function initializeBackgroundCanvas (): void {

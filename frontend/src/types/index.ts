@@ -11,7 +11,8 @@ export interface CanvasInfo {
 };
 
 export interface CanvasOption {
-    pixelSize: number;
+    width: number;
+    height: number;
     zoomFactor: number;
     mainColor: string;
     subColor: string;
@@ -33,4 +34,5 @@ export interface Modal {
 export interface OffscreenCanvasInstance {
     canvas: OffscreenCanvas;
     context: OffscreenCanvasRenderingContext2D;
+    update: (width: number, height: number) => void;
 }

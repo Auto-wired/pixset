@@ -7,7 +7,7 @@
 
     let transferType: string = $state("download");
 
-    $effect(() => {
+    $effect((): void => {
         modal.title = `${ transferType.replace(/^\w/, (word: string) => word.toUpperCase()) } Image`;
 
         if (!modal.isOpen) {
@@ -37,7 +37,9 @@
                     class="active"
                     class:active={ transferType === "download" }
                     class:deactive={ transferType === "upload" }
-                    onclick={ () => transferType = "download" }>
+                    onclick={(): void => {
+                        transferType = "download";
+                    }}>
                     Download
                 </button>
                 <button
@@ -45,7 +47,9 @@
                     class="deactive"
                     class:active={ transferType === "upload" }
                     class:deactive={ transferType === "download" }
-                    onclick={ () => transferType = "upload" }>
+                    onclick={(): void => {
+                        transferType = "upload";
+                    }}>
                     Upload
                 </button>
             </div>

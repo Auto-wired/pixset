@@ -32,9 +32,8 @@
     }
 
     function setCanvasSize (): void {
-        const { width, height }: { width: number, height: number } = canvasContainer.getBoundingClientRect();
-        const parseWidth: number = Math.floor(width);
-        const parseHeight: number = Math.floor(height);
+        const parseWidth: number = Math.floor(window.innerWidth * 0.7);
+        const parseHeight: number = Math.floor(window.innerHeight * 0.95);
 
         canvasContainer.style.width = `${ parseWidth }px`;
         canvasContainer.style.height = `${ parseHeight }px`;
@@ -49,8 +48,8 @@
         const { offsetX, offsetY, type }: { offsetX: number, offsetY: number, type: string } = event;
         const xStart: number = canvasInfo.xTranslate * canvasOption.zoomFactor;
         const yStart: number = canvasInfo.yTranslate * canvasOption.zoomFactor;
-        const xEnd: number = xStart + (canvasOption.pixelSize * canvasOption.zoomFactor);
-        const yEnd: number = yStart + (canvasOption.pixelSize * canvasOption.zoomFactor);
+        const xEnd: number = xStart + (canvasOption.width * canvasOption.zoomFactor);
+        const yEnd: number = yStart + (canvasOption.height * canvasOption.zoomFactor);
 
         canvasInfo.xStart = xStart;
         canvasInfo.yStart = yStart;
@@ -69,23 +68,17 @@
     }
 
     function setTranslate (): void {
-        const xTranslate: number = (canvasInfo.width / (2 * canvasOption.zoomFactor)) - ((canvasOption.pixelSize * canvasOption.zoomFactor) / (2 * canvasOption.zoomFactor));
-        const yTranslate: number = (canvasInfo.height / (2 * canvasOption.zoomFactor)) - ((canvasOption.pixelSize * canvasOption.zoomFactor) / (2 * canvasOption.zoomFactor));
+        const xTranslate: number = (canvasInfo.width / (2 * canvasOption.zoomFactor)) - ((canvasOption.width * canvasOption.zoomFactor) / (2 * canvasOption.zoomFactor));
+        const yTranslate: number = (canvasInfo.height / (2 * canvasOption.zoomFactor)) - ((canvasOption.height * canvasOption.zoomFactor) / (2 * canvasOption.zoomFactor));
 
         canvasInfo.xTranslate = xTranslate;
         canvasInfo.yTranslate = yTranslate;
     }
 
     function initializeOffscreenCanvas (): void {
-        const context: OffscreenCanvasRenderingContext2D | null = offscreenCanvasInstance.canvas.getContext("2d");
-
-        if (context === null) {
-            return;
-        }
-
-        offscreenCanvasInstance.context = context;
-        offscreenCanvasInstance.canvas.width = canvasOption.pixelSize;
-        offscreenCanvasInstance.canvas.height = canvasOption.pixelSize;
+        offscreenCanvasInstance.context = offscreenCanvasInstance.canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+        offscreenCanvasInstance.canvas.width = canvasOption.width;
+        offscreenCanvasInstance.canvas.height = canvasOption.height;
     }
 
     onMount((): void => {
@@ -96,6 +89,7 @@
 
     window.addEventListener("resize", (): void => {
         setCanvasSize();
+        setTranslate();
     });
 </script>
 
@@ -114,8 +108,11 @@
 
     <DrawCanvas
         dpr={ dpr }
-        setPosition={(event: MouseEvent) => {
+        setPosition={(event: MouseEvent): void => {
             setPosition(event);
+        }}
+        setTranslate={(): void => {
+            setTranslate();
         }}>
     </DrawCanvas>
     
@@ -130,8 +127,6 @@
 
 <style>
     #canvas-container {
-        width: 70%;
-        height: 95%;
         position: relative;
         background-color: #ffffff;
     }
