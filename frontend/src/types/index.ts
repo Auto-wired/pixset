@@ -1,6 +1,9 @@
-export interface CanvasInfo {
+export interface Size {
     width: number;
     height: number;
+}
+
+export interface CanvasInfo extends Size {
     xStart: number;
     yStart: number;
     xEnd: number;
@@ -10,9 +13,7 @@ export interface CanvasInfo {
     overlayCanvasVisibility: boolean;
 };
 
-export interface CanvasOption {
-    width: number;
-    height: number;
+export interface CanvasOption extends Size {
     zoomFactor: number;
     mainColor: string;
     subColor: string;

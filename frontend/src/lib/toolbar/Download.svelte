@@ -1,9 +1,13 @@
 <script lang="ts">
+    import type { Size } from "../../types";
+
     import { canvasOption, offscreenCanvasInstance } from "../../structures/shared.svelte";
 
     let imageName: string = $state("");
-    let imageWidth: number = $state(32);
-    let imageHeight: number = $state(32);
+    let imageSize: Size = $state({
+        width: canvasOption.width,
+        height: canvasOption.height,
+    });
     let isSameSize: boolean = $state(true);
     let imageType: string = $state("png");
 
@@ -18,7 +22,7 @@
             return;
         }
 
-        const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageWidth, imageHeight);
+        const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageSize.width, imageSize.height);
         const offscreenCanvasContext: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
         const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.width, canvasOption.height);
         const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
@@ -27,7 +31,7 @@
         offscreenCanvasContext.imageSmoothingEnabled = false;
         offscreenCanvasContext.imageSmoothingQuality = "high";
 
-        offscreenCanvasContext.scale(imageWidth / canvasOption.width, imageHeight / canvasOption.height);
+        offscreenCanvasContext.scale(imageSize.width / canvasOption.width, imageSize.height / canvasOption.height);
         offscreenCanvasContext.drawImage(imageBitmap, 0, 0);
 
         const blob: Blob = await offscreenCanvas.convertToBlob({
@@ -44,7 +48,7 @@
 
     function syncSize (): void {
         if (isSameSize) {
-            imageHeight = imageWidth;
+            imageSize.height = imageSize.width;
         }
     }
 
@@ -82,13 +86,13 @@
         <input
             class="size-input"
             type="number"
-            bind:value={ imageWidth }>
+            bind:value={ imageSize.width }>
         <p style="margin: 0 8px;">X</p>
         <input
             class="size-input"
             type="number"
             disabled={ isSameSize }
-            bind:value={ imageHeight }>
+            bind:value={ imageSize.height }>
     </div>
     <!-- image size -->
 
@@ -132,6 +136,7 @@
 <style>
     input {
         height: 30px;
+        padding: 8px;
         border: 1px solid #000000;
         border-radius: 4px;
     }
@@ -156,11 +161,11 @@
     }
 
     .name-input {
-        width: calc(100% - 60px);
+        width: calc(100% - 64px);
     }
 
     .size-input {
-        width: calc(50% - 44px);
+        width: calc(50% - 50px);
     }
 
     .same-size-label {
