@@ -105,7 +105,9 @@
 
     async function restoreDrawCanvas (): Promise<void> {
         const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.width, canvasOption.height);
-        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
+        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData, {
+            resizeQuality: "pixelated",
+        });
 
         drawCanvasContext.clearRect(-canvasInfo.xTranslate, -canvasInfo.yTranslate, canvasInfo.width, canvasInfo.height);
         drawCanvasContext.drawImage(imageBitmap, 0, 0);

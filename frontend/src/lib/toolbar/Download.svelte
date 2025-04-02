@@ -25,7 +25,9 @@
         const offscreenCanvas: OffscreenCanvas = new OffscreenCanvas(imageSize.width, imageSize.height);
         const offscreenCanvasContext: OffscreenCanvasRenderingContext2D = offscreenCanvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
         const imageData: ImageData = offscreenCanvasInstance.context.getImageData(0, 0, canvasOption.width, canvasOption.height);
-        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData);
+        const imageBitmap: ImageBitmap = await window.createImageBitmap(imageData, {
+            resizeQuality: "pixelated",
+        });
         const link: HTMLAnchorElement = document.createElement("a");
 
         offscreenCanvasContext.imageSmoothingEnabled = false;
@@ -63,6 +65,14 @@
     }
 
     $effect((): void => {
+        if (imageSize.width === null || imageSize.width < 0) {
+            imageSize.width = 1;
+        }
+
+        if (imageSize.height === null || imageSize.height < 0) {
+            imageSize.height = 1;
+        }
+
         syncSize();
     });
 </script>

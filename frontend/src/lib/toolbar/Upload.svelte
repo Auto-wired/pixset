@@ -1,22 +1,19 @@
 <script lang="ts">
     import type { Size } from "../../types";
 
-    import { tick } from "svelte";
+    import { onMount } from "svelte";
     import { offscreenCanvasInstance, modal } from "../../structures/shared.svelte";
 
     let previewCanvas: HTMLCanvasElement;
     let previewCanvasContext: CanvasRenderingContext2D;
     let fileInput: HTMLInputElement;
     let file: File | null = $state(null);
-    let previewCanvasSize: Size = $state({
-        width: 0,
-        height: 0,
-    });
     let imageSize: Size = $state({
         width: 0,
         height: 0,
     });
     let imageQuality: number = $state(100);
+    let resizeImageBitmap: ImageBitmap | null = $state(null);
 
     function onInput (event: Event): void {
         const target: HTMLInputElement = event.target as HTMLInputElement;
@@ -25,7 +22,7 @@
         file = files[0];
         fileInput.value = "";
 
-        uploadPreviewImage();
+        drawPreviewImage();
     }
 
     function onDrop (event: DragEvent): void {
@@ -35,7 +32,7 @@
 
         file = dataTransfer.files[0];
 
-        uploadPreviewImage();
+        drawPreviewImage();
     }
 
     function onDragover (event: DragEvent): void {
@@ -54,74 +51,70 @@
         return true;
     }
 
-    async function getImageBitmap (width: number, height: number): Promise<ImageBitmap> {
+    async function getImageBitmap (width: number | undefined, height: number | undefined): Promise<ImageBitmap> {
         const imageBitmap: ImageBitmap = await window.createImageBitmap(file as File, {
             resizeWidth: width,
             resizeHeight: height,
+            resizeQuality: "pixelated",
         });
 
         return imageBitmap;
     }
 
-    async function getPreviewSize (): Promise<Size> {
-        const image: HTMLImageElement = new Image();
-
-        image.src = window.URL.createObjectURL(file as File);
-
-        return new Promise<Size>((resolve: (value: Size) => void) => {
-            image.onload = (): void => {
-                const key: string = image.width > image.height ? "width" : "height";
-                const ratio: number = Math.floor(image[key as keyof HTMLImageElement] as number / previewCanvasSize[key as keyof Size]);
-
-                imageSize.width = image.width;
-                imageSize.height = image.height;
-
-                resolve({
-                    width: Math.floor(image.width / ratio),
-                    height: Math.floor(image.height / ratio),
-                });
-            }
-        });
-    }
-
-    async function setCanvasSize (): Promise<void> {
-        await tick();
-
-        const { width, height }: { width: number, height: number } = previewCanvas.getBoundingClientRect();
-
-        previewCanvasSize.width = width;
-        previewCanvasSize.height = height;
-    }
-
-    async function uploadPreviewImage (): Promise<void> {
-        if (!validateFile()) {
+    async function drawPreviewImage (): Promise<void> {
+        if (file === null || !validateFile()) {
             return;
         }
 
-        await setCanvasSize();
+        const imageWidth: number | undefined = imageSize.width !== 0 ? imageSize.width : undefined;
+        const imageHeight: number | undefined = imageSize.height !== 0 ? imageSize.height : undefined;
+        const ratio: number = imageQuality / 100;
+        const imageBitmap: ImageBitmap = await getImageBitmap(imageWidth, imageHeight);
+        const { width, height }: { width: number, height: number } = previewCanvas.getBoundingClientRect();
+        const scale: number = Math.min(width / imageSize.width, height / imageSize.height);
 
-        const { width, height }: Size = await getPreviewSize();
-        const imageBitmap: ImageBitmap = await getImageBitmap(width, height);
+        resizeImageBitmap = await window.createImageBitmap(
+            await getImageBitmap(imageBitmap.width * ratio, imageBitmap.height * ratio),
+            {
+                resizeWidth: imageBitmap.width,
+                resizeHeight: imageBitmap.height,
+                resizeQuality: "pixelated",
+            }
+        );
 
-        previewCanvasContext.drawImage(imageBitmap, previewCanvas.width / 2 - width / 2, previewCanvas.height / 2 - height / 2);
+        if (imageSize.width === 0) {
+            imageSize.width = imageBitmap.width;
+        }
+        
+        if (imageSize.height === 0) {
+            imageSize.height = imageBitmap.height;
+        }
+
+        previewCanvasContext.resetTransform();
+        previewCanvasContext.clearRect(0, 0, width, height);
+        previewCanvasContext.translate((width - (imageBitmap.width * scale)) / 2, (height - (imageBitmap.height * scale)) / 2);
+        previewCanvasContext.scale(scale, scale);
+        previewCanvasContext.drawImage(resizeImageBitmap, 0, 0);
     }
 
     async function uploadImage (): Promise<void> {
-        const imageBitmap: ImageBitmap = await getImageBitmap(imageSize.width, imageSize.height);
-
         offscreenCanvasInstance.canvas.width = imageSize.width;
         offscreenCanvasInstance.canvas.height = imageSize.height;
 
         offscreenCanvasInstance.context.clearRect(0, 0, imageSize.width, imageSize.height);
-        offscreenCanvasInstance.context.drawImage(imageBitmap, 0, 0);
+        offscreenCanvasInstance.context.drawImage(resizeImageBitmap as ImageBitmap, 0, 0);
         offscreenCanvasInstance.update(imageSize.width, imageSize.height);
         modal.close();
     }
 
     function removeImage (): void {
         file = null;
+        resizeImageBitmap = null;
+        imageSize.width = 0;
+        imageSize.height = 0;
+        imageQuality = 100;
 
-        previewCanvasContext.clearRect(0, 0, previewCanvasSize.width, previewCanvasSize.height);
+        previewCanvasContext.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     }
 
     function initializePreviewCanvas (): void {
@@ -131,6 +124,18 @@
     }
 
     $effect((): void => {
+        if (imageSize.width === null || (imageSize.width < 1 && resizeImageBitmap !== null)) {
+            imageSize.width = 1;
+        }
+
+        if (imageSize.height === null || (imageSize.height < 1 && resizeImageBitmap !== null)) {
+            imageSize.height = 1;
+        }
+
+        drawPreviewImage();
+    });
+
+    onMount((): void => {
         initializePreviewCanvas();
     });
 </script>
@@ -166,8 +171,8 @@
         <!-- preview canvas -->
         <canvas
             id="preview-canvas"
-            width={ previewCanvasSize.width }
-            height={ previewCanvasSize.height }
+            width={ 328 }
+            height={ 200 }
             bind:this={ previewCanvas }>
         </canvas>
         <!-- preview canvas -->
@@ -270,7 +275,7 @@
     #preview-canvas {
         width: 100%;
         height: 200px;
-        background-color: #000000;
+        border: 1px solid #000000;
     }
 
     .active {
