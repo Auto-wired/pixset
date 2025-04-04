@@ -100,11 +100,7 @@
     onmousemove={ onMouseMove }
     onwheel={ onWheel }>
 
-    <BackgroundCanvas
-        canvasInfo={ canvasInfo }
-        canvasOption={ canvasOption }
-        dpr={ dpr }>
-    </BackgroundCanvas>
+    <BackgroundCanvas dpr={ dpr }></BackgroundCanvas>
 
     <DrawCanvas
         dpr={ dpr }
@@ -116,12 +112,7 @@
         }}>
     </DrawCanvas>
     
-    <OverlayCanvas
-        canvasInfo={ canvasInfo }
-        canvasOption={ canvasOption }
-        position={ position }
-        dpr={ dpr }>
-    </OverlayCanvas>
+    <OverlayCanvas dpr={ dpr }></OverlayCanvas>
     
 </div>
 

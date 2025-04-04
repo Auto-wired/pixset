@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { CanvasInfo, CanvasOption } from "../../types";
+    import { canvasInfo, canvasOption } from "../../structures/shared.svelte";
 
-    let { canvasInfo, canvasOption, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, dpr: number } = $props();
+    let { dpr }: { dpr: number } = $props();
     let backgroundCanvas: HTMLCanvasElement;
     let boardCanvas: HTMLCanvasElement;
     let backgroundCanvasContext: CanvasRenderingContext2D;
@@ -51,6 +51,9 @@
 
     $effect((): void => {
         initializeBackgroundCanvas();
+    });
+
+    $effect((): void => {
         initializeBoardCanvas();
     });
 </script>

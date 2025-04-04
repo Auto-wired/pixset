@@ -1,13 +1,9 @@
 <script lang="ts">
-    import type { CanvasInfo, CanvasOption, Position } from "../../types";
+    import { canvasInfo, canvasOption, position } from "../../structures/shared.svelte";
 
-    let { canvasInfo, canvasOption, position, dpr }: { canvasInfo: CanvasInfo, canvasOption: CanvasOption, position: Position, dpr: number } = $props();
+    let { dpr }: { dpr: number } = $props();
     let overlayCanvas: HTMLCanvasElement;
     let overlayCanvasContext: CanvasRenderingContext2D;
-
-    function onMouseMove (): void {
-        drawOverlay();
-    }
 
     function drawOverlay (): void {
         overlayCanvasContext.clearRect(0, 0, canvasInfo.width, canvasInfo.height);
@@ -21,7 +17,7 @@
         overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * canvasOption.zoomFactor), canvasInfo.yStart + (position.y * canvasOption.zoomFactor), canvasOption.zoomFactor, canvasOption.zoomFactor);
     }
 
-    $effect((): void => {
+    function initializeOverlayCanvas (): void {
         overlayCanvasContext = overlayCanvas.getContext("2d") as CanvasRenderingContext2D;
         overlayCanvas.style.visibility = canvasInfo.overlayCanvasVisibility ? "visible" : "hidden";
 
@@ -29,6 +25,10 @@
         overlayCanvasContext.scale(dpr, dpr);
 
         drawOverlay();
+    }
+
+    $effect((): void => {
+        initializeOverlayCanvas();
     });
 </script>
 
@@ -37,7 +37,7 @@
     width={ canvasInfo.width * dpr }
     height={ canvasInfo.height * dpr }
     bind:this={ overlayCanvas }
-    onmousemove={ onMouseMove }>
+    onmousemove={ drawOverlay }>
 </canvas>
 
 <style>
