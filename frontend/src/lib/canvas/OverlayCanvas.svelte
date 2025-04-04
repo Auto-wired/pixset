@@ -5,23 +5,28 @@
     let overlayCanvas: HTMLCanvasElement;
     let overlayCanvasContext: CanvasRenderingContext2D;
 
+    function onMouseMove (): void {
+        drawOverlay();
+    }
+
     function drawOverlay (): void {
-        overlayCanvasContext.clearRect(0, 0, canvasInfo.width * dpr, canvasInfo.height * dpr);
+        overlayCanvasContext.clearRect(0, 0, canvasInfo.width, canvasInfo.height);
 
         if (position.isOutOfCanvas) {
             return;
         }
 
-        const resize: number = dpr * canvasOption.zoomFactor;
-
         overlayCanvasContext.fillStyle = "rgba(255, 255, 255, 0.7)";
 
-        overlayCanvasContext.fillRect(canvasInfo.xStart * dpr + position.x * resize, canvasInfo.yStart * dpr + position.y * resize, resize, resize);
+        overlayCanvasContext.fillRect(canvasInfo.xStart + (position.x * canvasOption.zoomFactor), canvasInfo.yStart + (position.y * canvasOption.zoomFactor), canvasOption.zoomFactor, canvasOption.zoomFactor);
     }
 
     function initializeOverlayCanvas (): void {
         overlayCanvasContext = overlayCanvas.getContext("2d") as CanvasRenderingContext2D;
         overlayCanvas.style.visibility = canvasInfo.overlayCanvasVisibility ? "visible" : "hidden";
+
+        overlayCanvasContext.resetTransform();
+        overlayCanvasContext.scale(dpr, dpr);
 
         drawOverlay();
     }
@@ -36,7 +41,7 @@
     width={ canvasInfo.width * dpr }
     height={ canvasInfo.height * dpr }
     bind:this={ overlayCanvas }
-    onmousemove={ drawOverlay }>
+    onmousemove={ onMouseMove }>
 </canvas>
 
 <style>

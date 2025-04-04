@@ -13,9 +13,9 @@ const canvasInfo: CanvasInfo = $state({
 });
 
 const canvasOption: CanvasOption = $state({
-    width: 20,
-    height: 20,
-    zoomFactor: 7,
+    width: 64,
+    height: 64,
+    zoomFactor: 1,
     mainColor: "#ff0000",
     subColor: "#ffffff",
 });
