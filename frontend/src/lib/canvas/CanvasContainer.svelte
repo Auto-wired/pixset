@@ -17,16 +17,18 @@
         const { deltaY }: { deltaY: number } = event;
 
         if (deltaY < 0) {
-            canvasOption.zoomFactor += 1;
+            canvasOption.zoomFactor += 0.1;
         } else {
-            canvasOption.zoomFactor -= 1;
+            canvasOption.zoomFactor -= 0.1;
         }
 
-        if (canvasOption.zoomFactor < 1) {
-            canvasOption.zoomFactor = 1;
+        if (canvasOption.zoomFactor < 0.1) {
+            canvasOption.zoomFactor = 0.1;
         } else if (canvasOption.zoomFactor > 20) {
             canvasOption.zoomFactor = 20;
         }
+
+        canvasOption.zoomFactor = Number(canvasOption.zoomFactor.toFixed(1));
 
         setPosition(event);
     }
