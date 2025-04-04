@@ -17,23 +17,25 @@
         const { deltaY }: { deltaY: number } = event;
 
         if (deltaY < 0) {
-            canvasOption.zoomFactor += 1;
+            canvasOption.zoomFactor += 0.1;
         } else {
-            canvasOption.zoomFactor -= 1;
+            canvasOption.zoomFactor -= 0.1;
         }
 
-        if (canvasOption.zoomFactor < 1) {
-            canvasOption.zoomFactor = 1;
+        if (canvasOption.zoomFactor < 0.1) {
+            canvasOption.zoomFactor = 0.1;
         } else if (canvasOption.zoomFactor > 20) {
             canvasOption.zoomFactor = 20;
         }
+
+        canvasOption.zoomFactor = Number(canvasOption.zoomFactor.toFixed(1));
 
         setPosition(event);
     }
 
     function setCanvasSize (): void {
-        const parseWidth: number = Math.floor(window.innerWidth * 0.7);
-        const parseHeight: number = Math.floor(window.innerHeight * 0.95);
+        const parseWidth: number = Math.ceil(window.innerWidth * 0.7);
+        const parseHeight: number = Math.ceil(window.innerHeight * 0.95);
 
         canvasContainer.style.width = `${ parseWidth }px`;
         canvasContainer.style.height = `${ parseHeight }px`;
@@ -60,8 +62,6 @@
             return;
         }
 
-        // position.x = xStart + (xSpace * canvasOption.zoomFactor);
-        // position.y = yStart + (ySpace * canvasOption.zoomFactor);
         position.x = Math.floor((offsetX - xStart) / canvasOption.zoomFactor);
         position.y = Math.floor((offsetY - yStart) / canvasOption.zoomFactor);
         position.isOutOfCanvas = offsetX < xStart || offsetX > xEnd - 1 || offsetY < yStart || offsetY > yEnd - 1;
@@ -101,8 +101,6 @@
     onwheel={ onWheel }>
 
     <BackgroundCanvas
-        canvasInfo={ canvasInfo }
-        canvasOption={ canvasOption }
         dpr={ dpr }>
     </BackgroundCanvas>
 
@@ -117,9 +115,6 @@
     </DrawCanvas>
     
     <OverlayCanvas
-        canvasInfo={ canvasInfo }
-        canvasOption={ canvasOption }
-        position={ position }
         dpr={ dpr }>
     </OverlayCanvas>
     
